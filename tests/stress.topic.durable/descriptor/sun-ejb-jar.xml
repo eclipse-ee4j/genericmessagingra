@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sun-ejb-jar PUBLIC '-//Sun Microsystems, Inc.//DTD Sun ONE Application Server 7.0 EJB 2.0//EN' 'http://www.sun.com/software/sunone/appserver/dtds/sun-ejb-jar_2_0-0.dtd'>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<!-- This file includes tokens elimited by @ characters which are substituted when the file is copied into the EAR --> 
+
+<sun-ejb-jar>
+  <enterprise-beans>
+    <unique-id>1</unique-id>
+    <ejb>
+      <ejb-name>SimpleMessageEJB</ejb-name>
+      <jndi-name>jms/SimpleMessageEJB</jndi-name>
+      <resource-ref>
+        <res-ref-name>jms/QCFactory</res-ref-name>
+        <jndi-name>jms/QCFactory</jndi-name>
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/inboundTopicForDurableTest</resource-env-ref-name>
+        <jndi-name>jms/inboundTopicForDurableTest</jndi-name>
+      </resource-env-ref>
+      <mdb-connection-factory>
+          <jndi-name>jms/TCFactory</jndi-name>
+      </mdb-connection-factory>
+      <mdb-resource-adapter>
+        <resource-adapter-mid>genericra</resource-adapter-mid>
+        <activation-config>
+           <activation-config-property>
+             <activation-config-property-name>DestinationType</activation-config-property-name>
+             <activation-config-property-value>javax.jms.Topic</activation-config-property-value>
+           </activation-config-property>
+        
+           <activation-config-property>
+             <activation-config-property-name>DestinationProperties</activation-config-property-name>
+             <activation-config-property-value>@activation-config.DestinationProperties@</activation-config-property-value>
+           </activation-config-property>
+
+           <activation-config-property>
+             <activation-config-property-name>SubscriptionDurability</activation-config-property-name>
+             <activation-config-property-value>Durable</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>SubscriptionName</activation-config-property-name>
+             <activation-config-property-value>TestSubscription</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>ClientID</activation-config-property-name>
+             <activation-config-property-value>myClientIDs</activation-config-property-value>
+           </activation-config-property>
+
+           <!-- Properties needed if JNDI is being used -->
+	       <activation-config-property>
+              <activation-config-property-name>ConnectionFactoryJndiName</activation-config-property-name>
+              <activation-config-property-value>@activation-config.ConnectionFactoryJndiName@</activation-config-property-value>
+            </activation-config-property>
+            <activation-config-property>
+              <activation-config-property-name>DestinationJndiName</activation-config-property-name>
+              <activation-config-property-value>@activation-config.DestinationJndiName@</activation-config-property-value>
+            </activation-config-property>
+		    <!-- End of properties needed if JNDI is being used --> 
+<!--
+           <activation-config-property>
+             <activation-config-property-name>SubscriptionDurability</activation-config-property-name>
+             <activation-config-property-value>Durable</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>SubscriptionName</activation-config-property-name>
+             <activation-config-property-value>TestSubscription</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>ClientID</activation-config-property-name>
+             <activation-config-property-value>uniq-3</activation-config-property-value>
+           </activation-config-property>
+           -->
+           <activation-config-property>
+             <activation-config-property-name>MaxPoolSize</activation-config-property-name>
+             <activation-config-property-value>32</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>RedeliveryAttempts</activation-config-property-name>
+             <activation-config-property-value>0</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>ReconnectAttempts</activation-config-property-name>
+             <activation-config-property-value>4</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>ReconnectInterval</activation-config-property-name>
+             <activation-config-property-value>10</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>RedeliveryInterval</activation-config-property-name>
+             <activation-config-property-value>1</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>SendBadMessagesToDMD</activation-config-property-name>
+             <activation-config-property-value>false</activation-config-property-value>
+           </activation-config-property>
+           <!--
+           <activation-config-property>
+             <activation-config-property-name>DeadMessageDestinationClassName</activation-config-property-name>
+             <activation-config-property-value>com.sun.messaging.Queue</activation-config-property-value>
+           </activation-config-property>
+           <activation-config-property>
+             <activation-config-property-name>DeadMessageDestinationProperties</activation-config-property-name>
+             <activation-config-property-value>imqDestinationName=DMDtest</activation-config-property-value>
+           </activation-config-property>
+           -->
+        </activation-config>
+      </mdb-resource-adapter>
+    </ejb>
+  </enterprise-beans>
+</sun-ejb-jar>
+

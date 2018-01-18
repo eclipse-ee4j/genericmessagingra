@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sun-ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Application Server 8.1 EJB 2.1//EN" "http://www.sun.com/software/appserver/dtds/sun-ejb-jar_2_1-1.dtd">
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<sun-ejb-jar>
+  <enterprise-beans>
+    <ejb>
+      <ejb-name>PublisherBean</ejb-name>
+      <jndi-name>PublisherBean</jndi-name>
+      <resource-ref>
+        <res-ref-name>jms/MyConnectionFactory</res-ref-name>
+        <jndi-name>jms/ConnectionFactory</jndi-name>
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/QueueName</resource-env-ref-name>
+        <jndi-name>jms/Queue</jndi-name>
+      </resource-env-ref>
+    </ejb>
+    <name>EBJAR</name>
+    <unique-id>1</unique-id>
+    <ejb>
+      <ejb-name>MessageBean</ejb-name>
+      <jndi-name>jms/Queue</jndi-name>
+      <resource-ref>
+        <res-ref-name>jdbc/PublisherDB</res-ref-name>
+        <jndi-name>jdbc/ejbTutorialDB</jndi-name>
+      </resource-ref>
+      <mdb-connection-factory>
+        <jndi-name>jms/ConnectionFactory</jndi-name>
+      </mdb-connection-factory>
+      <mdb-resource-adapter>
+        <resource-adapter-mid>genericra</resource-adapter-mid>
+        <activation-config>
+          <activation-config-property>
+            <activation-config-property-name>DestinationType</activation-config-property-name>
+            <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>MaxPoolSize</activation-config-property-name>
+            <activation-config-property-value>32</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>RedeliveryAttempts</activation-config-property-name>
+            <activation-config-property-value>0</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>ReconnectAttempts</activation-config-property-name>
+            <activation-config-property-value>4</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>ReconnectInterval</activation-config-property-name>
+            <activation-config-property-value>10</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>RedeliveryInterval</activation-config-property-name>
+            <activation-config-property-value>1</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>SendBadMessagesToDMD</activation-config-property-name>
+            <activation-config-property-value>false</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>ConnectionFactoryJndiName</activation-config-property-name>
+            <activation-config-property-value>XAQCF</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+            <activation-config-property-name>DestinationJndiName</activation-config-property-name>
+            <activation-config-property-value>jms/TQueue</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+      </mdb-resource-adapter>
+    </ejb>
+  </enterprise-beans>
+</sun-ejb-jar>

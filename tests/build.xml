@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<project name="genericratests" default="usage" basedir=".">
+
+	<import file="common/properties.xml"/>
+	<import file="common/common.xml"/>
+
+	<!-- Run all tests -->
+    <target name="all" depends="init-common">
+		<antcall target="setup"/>
+		<antcall target="run-all-tests">
+			<param name="test-target" value="all" />
+		</antcall>
+		<antcall target="unsetup"/>
+        <antcall target="runjunitreport-common"/>
+	</target>
+	
+	<!-- Run a single test. Specify test subdirectory using -Dtestdir=test-dir -->
+    <target name="single" depends="init-common">
+        <if>
+            <isset property="testdir"/>
+    	    <then>
+    			<antcall target="setup"/>
+    			<echo message=" @@## Running ${testdir} ##@@" />
+    			<ant dir="${testdir}" target="all" />
+    			<echo message=" @@## Finished ${testdir} ##@@" />
+    			<antcall target="unsetup"/>
+     	    </then>
+    	    <else>
+    	    	<echo>Need to specify test directory  using -Dtestdir=test-dir. For example -Dtestdir=performance.queue</echo>
+     	    </else>
+    	</if>
+	</target>
+	
+	<!-- Not used -->
+	<target name="foo" depends="check-genericra.jmsimpl.id">
+		
+		<!-- Run a target appropriate to the specified JMS provider -->
+        <ant antfile="build-${genericra.jmsimpl.id}.xml"
+             target="targetname"
+             inheritall="true"
+             inheritRefs="true"
+        >
+        	<property name="jcaid" value="${genericra.jmsimpl.id}" />
+        </ant>          
+        	
+	</target>
+	
+	<target name="setup" depends="check-glassfish.version,check-genericra.jmsimpl.id,check-genericra.raconfig.deliverytype,check-genericra.raconfig.supportsxa,init-common">
+		
+		<!-- select the appropriate config string for this provider -->
+		<propertycopy property="raconfig" from="${genericra.jmsimpl.id}.raconfig"/>
+		
+		<!-- we will prepend the chosen DeliveryType and SupportXA values below -->
+					
+		<!-- Create RA config -->
+    	<echo>Using DeliveryType=${genericra.raconfig.deliverytype}</echo>
+    	<antcall target="create-resource-adapter-config-common">
+    	   <param name="raconfig.property" value="SupportsXA=${genericra.raconfig.supportsxa}:DeliveryType=${genericra.raconfig.deliverytype}:${raconfig}" />
+    	   <param name="raname" value="genericra"/>
+    	</antcall>	
+
+		<!-- deploy RA -->
+		<antcall target="deploy-rar-common"/>
+	</target>
+		
+	<target name="unsetup" depends="init-common">
+		<antcall target="delete-resource-adapter-config-common">
+			<param name="raname" value="genericra" />
+		</antcall>
+		<antcall target="undeploy-rar-common">
+			<param name="undeployrar" value="genericra" />
+		</antcall>
+	</target>
+
+	<target name="run-all-tests" depends="init-common">
+		
+		<echo message=" @@## Running performance.queue ##@@" />
+		<ant dir="performance.queue" target="${test-target}" />
+		<echo message=" @@## Finished performance.queue ##@@" />
+		
+		<echo message=" @@## Running simple.queue ##@@" />
+		<ant dir="simple.queue" target="${test-target}" />
+		<echo message=" @@## Finished simple.queue ##@@" />
+		
+		<echo message="@@## Running stress.queue ##@@" />
+		<ant dir="stress.queue" target="${test-target}" />
+		<echo message="@@## Finished stress.queue ##@@" />
+
+		<echo message=" @@## Running stress.queue.requiresnew ##@@" />
+		<ant dir="stress.queue.requiresnew" target="${test-target}" />
+		<echo message=" @@## Finished stress.queue.requiresnew ##@@" />
+		<!-- redelivery test doesn't work with noxa -->
+		  <if>
+		  	<equals arg1="${genericra.raconfig.supportsxa}" arg2="true" />
+		  	<then>
+				<echo message="@@## Running stress.queue.redelivery ##@@"/>
+				<ant dir="stress.queue.redelivery" target="${test-target}"/>
+				<echo message="@@## Finished stress.queue.redelivery ##@@"/>		 
+		  	</then>
+		  </if>		
+		
+		<echo message="@@## Running stress.topic.nondurable ##@@" />
+		<ant dir="stress.topic.nondurable" target="${test-target}" />
+		<echo message="@@## Finished stress.topic.nondurable ##@@" />
+
+		<echo message="@@## Running stress.topic.durable ##@@" />
+		<ant dir="stress.topic.durable" target="${test-target}" />
+		<echo message="@@## Finished stress.topic.durable ##@@" />
+		
+	</target>
+
+	<target name="clean" depends="init-common">
+		<antcall target="clean-common" />
+	</target>
+
+	<target name="usage">
+		<antcall target="usage-common" />
+	</target>
+</project>

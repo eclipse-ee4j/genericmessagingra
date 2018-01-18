@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" version="2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+<display-name>time</display-name>
+<welcome-file-list>
+<welcome-file>
+index.html
+</welcome-file>
+</welcome-file-list>
+<ejb-ref>
+    <ejb-ref-name>ejb/remote/Publisher</ejb-ref-name>
+    <ejb-ref-type>Session</ejb-ref-type>
+    <home>PublisherHome</home>
+    <remote>PublisherRemote</remote>
+</ejb-ref>
+<resource-ref>
+  <res-ref-name>jdbc/PublisherDB</res-ref-name>
+  <res-type>javax.sql.DataSource</res-type>
+  <res-auth>Container</res-auth>
+</resource-ref>
+</web-app>

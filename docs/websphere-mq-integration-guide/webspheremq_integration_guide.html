@@ -1,0 +1,1727 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+
+    Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<html>
+<head>
+  <title>Configure_GenericJMSRA_For_IBMMQ</title>
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+
+
+  
+  
+  <meta name="author" content="Sivakumar.Thyagarajan@Sun.COM">
+
+
+
+  
+  
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=utf-8">
+
+
+
+  
+  
+  <style>
+<!--
+@page { size: 8.27in 11.69in; margin: 0.79in }
+P { margin-bottom: 0.08in }
+--></style>
+</head>
+
+
+<body>
+
+
+
+<h1><a class="mozTocH1" name="mozTocId236768"></a>Integrating
+Sun Java System Application Server with IBM Websphere MQ 6.0 using
+Generic Resource Adapter for JMS</h1>
+
+
+
+<span style="font-style: italic;">By Sushmita Sharma and
+Sivakumar Thyagarajan, February 2006</span><br>
+
+
+
+<br>
+
+
+
+It has often been an enterprise application integration [EAI] developer's
+nightmare to integrate disparate messaging products with transactional
+applications deployed in a Java EE application server. The preferred
+message provider pluggability mechanism in J2EE 1.4 and beyond is using
+the <a href="http://java.sun.com/j2ee/connector/">Connectors
+1.5 architecture</a>, but a lot of messaging providers do
+not bundle Connectors 1.5 compliant resource adapters to help in this
+integration.<br>
+
+
+
+<br>
+
+
+
+The <a href="http://genericjmsra.dev.java.net">Generic
+resource adapter for JMS</a>
+project helps in integrating messaging products with
+J2EE application servers by wrapping their JMS client library in a J2EE
+Connector Architecture 1.5 resource adapter. It has been used to
+integrate different messaging products like Tibco EMS and Sun Java
+System Message Queue with the Sun Java System Application
+Server.&nbsp;
+In this article we would
+guide you through the steps for using the Generic Resource Adapter for
+JMS [referred to as 'Generic RA' in the article going forward] to
+integrate IBM <br>
+
+
+
+<a href="www.ibm.com/software/integration/wmq/v60/">
+WebSphere MQ 6.0</a> [formerly MQ Series] with <a href="http://www.sun.com/software/products/appsrvr_pe/index.xml">Sun
+Java
+System Application Server 8.2</a><br>
+
+
+<br>
+
+
+Instructions outlined in this article could also be used to integration WebSphere MQ 6.0 with <a href="https://glassfish.dev.java.net/">Project GlassFish</a> and the <a href="http://java.sun.com/javaee/downloads/">Java EE 5 SDK preview/Sun Java System Application Server PE 9 beta</a> versions available today.<br>
+
+
+
+<h2>Contents</h2>
+
+
+
+<ul id="mozToc">
+
+
+
+<!--mozToc h1 1 h2 2 h3 3 h4 4 h5 5 h6 6--><li><a href="#mozTocId236768">Integrating Sun Java System
+Application Server with IBM Websphere MQ 6.0 using&nbsp;Generic
+Resource
+Adapter for JMS</a>
+    
+    
+    <ul>
+
+
+
+      <li><a href="#mozTocId620360">Article
+Conventions/Assumptions</a></li>
+
+
+
+      <li><a href="#mozTocId608718">Initial
+Setup&nbsp;</a></li>
+
+
+
+      <li><a href="#mozTocId730839">Configuring IBM
+Websphere MQ administered objects using Websphere MQ's administration
+console</a></li>
+
+
+
+      <li><a href="#mozTocId971952">Configuring the
+Resource Adapter</a></li>
+
+
+
+      <li><a href="#mozTocId725992">Deploying the
+Resource adapter</a></li>
+
+
+
+      <li><a href="#mozTocId890479">Creating
+Connection Factories and Administered Objects in SJSAS</a>
+        
+        
+        <ul>
+
+
+
+          <li><a href="#mozTocId273889">Connector
+connection pool creation</a></li>
+
+
+
+          <li><a href="#mozTocId844086">Connector
+resource creation</a></li>
+
+
+
+          <li><a href="#mozTocId984328">Admin Objects</a></li>
+
+
+
+        
+        
+        </ul>
+
+
+
+      </li>
+
+
+
+      <li><a href="#mozTocId198246">Component
+Deployment descriptors</a></li>
+
+
+
+    
+    
+    </ul>
+
+
+
+  </li>
+
+
+
+</ul>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId620360"></a>Article
+Conventions/Assumptions</h2>
+
+
+
+Through out this article, we have used the asadmin command line
+interface to show all the interactions performed with the application
+server. &nbsp;You could also use the asadmin GUI console to achieve
+the
+same. Similarly this article assumes a *nix based system [Solaris,
+Linux]. &nbsp;If you are using&nbsp;Windows,&nbsp; Replace
+the instructions with Windows equivalents as
+necessary. <br>
+
+
+<br>
+
+
+Similarly the steps outlined below assume a successful
+installation of IBM Websphere MQ 6.0. Please refer the WebSphere MQ
+documentation for installation details. <br>
+
+
+This article also assumes that the Websphere MQ broker and the
+application server are deployed and running on the same physical
+host/machine. If you have the MQ broker running on a different machine
+and need to access it remotely, please refer the WebSphere MQ
+documentation for configuration details. The RA configuration and other
+application server related configuration remains unchanged.&nbsp; <br>
+
+
+<br>
+
+While looking at the configuration of the resource-adapter, connector
+connection pool etc. in this article, only a handful of properties,
+relevant for this discussion is covered. Please note that all the
+resource adapter, connection factory and activationspec configuration,
+listed in the Generic RA <a href="https://genericjmsra.dev.java.net/docs/userguide/userguide.html">user guide</a> could be used while configuring these objects.<br>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId608718"></a>Initial
+Setup&nbsp;</h2>
+
+
+
+The following permissions need to be added to the server.policy and the
+client.policy file to deploy the generic resource adapter and to run
+the client application.<br>
+
+
+
+<ul>
+
+
+
+  <li>Edit the server.policy file in the
+[${appserver-install-dir}/domains/domain1/config/] directory using your
+favourite text editor and add the following line to the default grant
+block.</li>
+
+
+
+</ul>
+
+
+
+<div style="text-align: left; font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+permission java.util.logging.LoggingPermission "control";<br>
+
+
+
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; permission
+java.util.PropertyPermission "*",
+"read,write";&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>Should you use an application client in your application,
+edit
+the application client's client.policy file in the
+[${appserver-install-dir}/lib/appclient/client.policy] directory and
+add the following line to it.</li>
+
+
+
+</ul>
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+permission javax.security.auth.PrivateCredentialPermission
+"javax.resource.spi.security.PasswordCredential * \"*\"","read";</span><br>
+
+
+
+<ul>
+
+
+
+  <li>Modify the domain's classpath to add IBM MQ 6.0 jars
+located in
+IBM MQ installation lib directory. The asadmin GUI could be used to
+modify a domain's classpath. Open a browser and type the url of the
+application server admin GUI - http://hostname:adminport. Go to
+Application Server -&gt; JVM Settings -&gt; Path Settings . Add
+an
+entry for the jar files shown below [comma-separated as shown below] in
+the classpath suffix. Restart the application server domain for these
+changes to take
+effect.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </li>
+
+
+
+</ul>
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/com.ibm.mq.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/com.ibm.mq.jms.Nojndi.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/com.ibm.mq.soap.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/com.ibm.mqjms.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/com.ibm.mqetclient.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/commonservices.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/dhbcore.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/rmm.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/providerutil.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/CL3Export.jar,</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+/opt/mqm/java/lib/CL3Nonexport.jar</span><br>
+
+
+
+<ul>
+
+
+
+  <li>Set the LD_LIBRARY_PATH environment variable to
+/opt/mqm/java/lib
+and restart the application server.&nbsp; For example in *NIX
+system,
+based on the choice of your shell. you would type in&nbsp;</li>
+
+
+
+</ul>
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; $ export
+LD_LIBRARY_PATH=/opt/mqm/java/lib</span><br>
+
+
+
+<br>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId730839"></a>Configuring
+IBM Websphere MQ administered objects using Websphere MQ's
+administration console</h2>
+
+
+
+<img style="width: 817px; height: 394px;" title="The image shows the various artifacts involved in this integration" alt="The image shows the various artifacts involved in this integration" src="mqseries-schematic.png" align="middle">
+<ul>
+
+
+
+  <li>Note: All artifacts created on the WebSphere MQ side and
+the application server side are shown in blue and green respectively in
+the image above.</li>
+
+
+
+  <li>Before we start working on Websphere MQ, if the
+installation has
+created a user and a group called mqm, specify a password for the mqm
+user via <span style="font-style: italic;">$passwd mqm</span></li>
+
+
+
+  <span style="font-style: italic;"><br>
+
+
+
+  </span> <li>Switch user to mqm</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ su mqm</span><br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>&nbsp;For Linux, a different kernel version needs to be
+set <span style="font-style: italic;">$ export
+LD_ASSUME_KERNEL=2.2.5</span></li>
+
+
+
+</ul>
+
+
+
+<ul>
+
+
+
+  <li>&nbsp;Create a mq queue manager called say 'QM1' using
+the crtmqm command.</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ crtmqm
+QM1</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>Start the mq queue manager we have just created. In the
+image above, see QM1 associated with the IBM WebSphere MQ broker.</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;">$ <span style="font-style: italic;">strmqm
+QM1</span><br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>Start the MQ listener using the runmqlsr command</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ runmqlsr -t tcp -m QM1 -p 1414
+&amp;</span><br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>Now, some configuration changes needs to be done to get the
+JMSAdmin working. Change to the /opt/mqm/java/bin directory and edit
+the JMSAdmin script to change the jvm to a location of a valid jvm in
+your system.&nbsp;</li>
+
+
+
+</ul>
+
+
+
+<ul>
+
+
+
+  <li>Set the relevant environment variable required for
+JMSAdmin&nbsp;by sourcing the setjmsenv script located in
+/opt/mqm/java/bin folder.</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ cd
+/opt/mqm/java/bin</span><br style="font-style: italic;">
+
+
+
+</div>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ source
+setjmsenv</span><br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>Change the JMSAdmin.config file to indicate the Initial
+Context
+Factory we would using. To simplify things, let's use the Sun's File
+System Context Provider.&nbsp;The PROVIDER_URL is used to specify
+the
+directory where the JNDI binding information would be stored. It should
+point to an appropriate directory that has write permissions. Edit the
+JMSAdmin.config file to set the following name-value pairs and comment
+out the rest.</li>
+
+
+
+</ul>
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+INITIAL_CONTEXT_FACTORY=com.sun.jndi.fscontext.RefFSContextFactory</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+PROVIDER_URL=file:/opt/tmp</span><br>
+
+
+
+<ul>
+
+
+
+  <li>&nbsp;Create Websphere MQ queues using the runmqsc
+console and MQJMS_PSQ.mqsc script.&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<span style="font-style: italic;"></span></li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ runmqsc
+QM1 &lt; MQJMS_PSQ.mqsc</span><br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>Create user defined physical queue for your application
+using
+runmqsc console and an appropriate physical queue name. An example of
+how this could be done is
+shown below.&nbsp;In the image above, see ORANGE.LOCAL.QUEUE
+associated with QM1.</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ runmqsc
+QM1</span><br style="font-style: italic;">
+
+
+
+</div>
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &gt; DEFINE
+QLOCAL(ORANGE.LOCAL.QUEUE)</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &gt; end</span><br>
+
+
+
+<ul>
+
+
+
+  <li>Start the Webspere MQ broker</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$ strmqbrk -m QM1</span><br>
+
+
+
+</div>
+
+
+
+<ul>
+
+
+
+  <li>In the WebSphere MQ JMSAdmin console use the following
+commands
+to create the connection factories, XA connection factories and the
+queues and topics for your application. A sample listing for creating
+each of the various JMS administered objects is shown below.&nbsp;In
+the image above, see QCF [for QM1] and TQueue [associated with
+ORANGE.LOCAL.QUEUE] defined in the FileSystem Naming Context.</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">$
+./JMSAdmin</span><br>
+
+
+
+<span style="font-style: italic;"></span></div>
+
+
+
+<span style="font-style: italic;">
+<br>
+
+
+
+</span>
+<div style="margin-left: 40px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+InitCtx&gt;def
+qcf&lt;JNDI Name to be given to the Queue Connection
+Factory&gt;
+hostname&lt;IBM MQ server hostname&gt; port(1414)
+channel(SYSTEM.DEF.SVRCONN)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transport(CLIENT) qmanager&lt;name of queue manager defined &gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.g. def qcf(QCF) hostname(localhost) port(1414)
+channel(SYSTEM.DEF.SVRCONN) transport(CLIENT) qmanager(QM1)<br>
+
+
+
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+InitCtx&gt;def xaqcf&lt;JNDI
+Name to be given to the XA Queue Connection Factory&gt;
+hostname&lt;IBM
+MQ server hostname&gt; port(1414) channel(SYSTEM.DEF.SVRCONN)<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+transport(CLIENT) qmanager&lt;name of queue manager defined &gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.g. def xaqcf(XAQCF) hostname(localhost) port(1414)
+channel(SYSTEM.DEF.SVRCONN) transport(CLIENT) qmanager(QM1)<br>
+
+
+
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;InitCtx&gt;def q&lt;JNDI Name to
+be given to the Queue&gt; queue&lt;physical queue name&gt;
+qmanager(name of queue manager defined )<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.g. def q(TQueue) queue(ORANGE.LOCAL.QUEUE) qmanager(QM1)<br>
+
+
+
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;InitCtx&gt;def tcf&lt;JNDI Name to
+be given to the&nbsp; Topic Connection Factory&gt;
+qmanager(name of
+queue manager defined )<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.g. def tcf(TCF) qmanager(QM1)<br>
+
+
+
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;InitCtx&gt;def xatcf&lt;JNDI Name
+to be given to the&nbsp; XA Topic Connection Factory&gt;
+qmanager(name
+of queue manager defined )<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.g. def xatcf(XATCF) qmanager(QM1)<br>
+
+
+
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+InitCtx&gt;def t&lt;JNDI
+Name to be given to the Topic&gt; topic&lt;sample topic name
+&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.g. def t(TTopic) topic(topic)<br>
+
+
+
+</div>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp; <br>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId971952"></a>Configuring
+the Resource Adapter</h2>
+
+
+
+<ul>
+
+
+
+  <li>Add ${appserver-install-dir}/bin to your PATH. The asadmin
+CLI
+command can be found at ${appserver-install-dir}/bin. In SJSAS, a
+resource adapter configuration is used to specify the configuration of
+a resource adapter. Use the following command to create a resource
+adapter configuration for genericra, to configure it to work with IBM
+WebSphere MQ.&nbsp;</li>
+
+
+
+</ul>
+
+
+
+<div style="margin-left: 40px;"><span style="font-style: italic;">asadmin
+create-resource-adapter-config --user &lt;adminname&gt;
+--password
+&lt;admin password&gt; --property
+<span style="color: rgb(0, 153, 0);">SupportsXA</span>=true:<span style="color: rgb(0, 153, 0);">ProviderIntegrationMode</span>=jndi:<span style="color: rgb(0, 153, 0);">UserName</span>=mqm:<span style="color: rgb(0, 153, 0);">Password</span>=###:<span style="color: rgb(0, 153, 0);">RMPolicy</span>=OnePerPhysicalConnection:</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;"><span style="color: rgb(0, 153, 0);">JndiProperties</span>=java.naming.factory.url.pkgs\\=com.ibm.mq.jms.naming,java.naming.factory.initial\\=com.sun.jndi.fscontext.RefFSContextFactory,java.naming.provider.url\\=</span><br style="font-style: italic;">
+
+
+
+<span style="font-style: italic;">file\\:\\/\\/opt\\/tmp:LogLevel=finest
+genericra</span><br style="font-style: italic;">
+
+
+
+</div>
+
+
+
+<br>
+
+
+
+<div style="margin-left: 40px;">A brief description of the
+various properties used in the above command is explained below:<br>
+
+
+
+<span style="font-weight: bold;">SupportsXA</span><br>
+
+
+
+Set the supports distributed transactions attribute to true. The level
+of transactional support the adapter provides -- none, local, or XA --
+depends on the capabilities of the Enterprise Information System [EIS]
+being adapted. If an adapter supports XA transactions and this
+attribute is XA, the application can use distributed transactions to
+coordinate the EIS resource with JDBC and JMS resources.<br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">ProviderIntegrationMode</span><br>
+
+
+
+Set the integration mode as JNDI. Two integration modes exist in the
+Generic Resource Adapter for JMS. The JNDI mode allows the resource
+adapter to use the administered objects published in the message
+provider's JNDI provider to integrate with the message provider.<br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">Username and Password</span><br>
+
+
+
+Message provider specific user credentials. [In this case, modify this
+attribute to reflect the IBM MQ username/password]<br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">JndiProperties</span><br>
+
+
+
+This property [comma-separated list of name-value pairs] specifies JNDI
+provider properties to be used for
+connecting to the JMS provider's JNDI. In our case, we set it to the
+JNDI configuration specified earlier.<br>
+
+
+
+<br>
+
+
+
+<span style="font-weight: bold;">RMPolicy</span><br>
+
+
+
+Some XAResource implementations such as&nbsp;IBM MQ Series, relies
+on a
+Resource Manager per Physical Connection and this causes issues when
+there is inbound
+<span style="font-style: italic;">and</span>
+outbound communication to the same queue manager in a single
+transaction (For example, an MDB sends &nbsp;a response to a
+destination). When RMPolicy is set to OnePerPhysicalConnection, the
+XAResource
+wrapper implementation's isSameRM in Generic JMS RA would check if both
+the XAResources use the same physical connection, before delegating to
+the wrapped objects. Ensure that this attribute is set to
+"OnePerPhysicalConnection" if the application uses XA. Additional
+information on this attribute is available in the <a href="#Resources">resources</a> section below.<br>
+
+
+
+</div>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId725992"></a>Deploying
+the Resource adapter</h2>
+
+
+
+<ul>
+
+
+
+  <li>Download the Generic RA bits from the project
+site.&nbsp;With Sun
+Java System Application Server 8.2 Platform Edition, Generic
+RA is available out-of-the-box with the application server and you
+could choose to use the bundle resource adapter as well in the step
+below. </li>
+
+
+
+</ul>
+
+
+
+<ul>
+
+
+
+  <li>Deploy the resource adapter using the asadmin deploy
+command, as shown below.&nbsp;In the image above, see Generic JMS
+RA deployed in the application server.</li>
+
+
+
+</ul>
+
+
+
+<span style="font-style: italic;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; $ asadmin deploy --user admin --password
+adminadmin
+&lt;location of the generic resource adapter rar file&gt;</span><br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId890479"></a>Creating
+Connection Factories and Administered Objects in SJSAS</h2>
+
+
+
+In order to configure a JMS Connection Factory, using the Generic
+Resource Adapter for JMS, a Connector connection pool and resource
+needs to be created in the application server, as shown below. In the
+image above, see mypool&nbsp;[pointing to Generic JMS RA and QCF]
+and jms/MyQCF [for mypool] created in the application server.<br>
+
+
+
+<br>
+
+
+
+<h3><a class="mozTocH3" name="mozTocId273889"></a>Connector
+connection pool creation</h3>
+
+
+
+#Creates a Connection Pool called mypool and points to XAQCF created in
+IBM MQ<br>
+
+
+
+asadmin create-connector-connection-pool -- raname genericra
+connectiondefinition javax.jms.QueueConnectionFactory
+--transactionsupport&nbsp; XATransaction --property
+ConnectionFactoryJndiName=QCF mypool<br>
+
+
+
+<br>
+
+
+
+#Creates a Connection Pool called mypool2 and points to XATCF created
+in IBM MQ<br>
+
+
+
+asadmin create-connector-connection-pool -- raname genericra
+connectiondefinition javax.jms.TopicConnectionFactory
+--transactionsupport&nbsp; XATransaction --property
+ConnectionFactoryJndiName=XATCF mypool2<br>
+
+
+
+<br>
+
+
+
+<h3><a class="mozTocH3" name="mozTocId844086"></a>Connector
+resource creation</h3>
+
+
+
+#Creates a connector resource named jms/MyQCF and
+binds this resource to JNDI for applications to use.<br>
+
+
+
+asadmin create-connector-resource --poolname mypool jms/MyQCF<br>
+
+
+
+<br>
+
+
+
+#Creates a connector resource named jms/MyTCF and
+binds this resource to JNDI for applications to use.<br>
+
+
+
+asadmin create-connector-resource --poolname mypool2 jms/MyTCF<br>
+
+
+
+<br>
+
+
+
+<h3><a class="mozTocH3" name="mozTocId984328"></a>Admin
+Objects</h3>
+
+
+
+For JMS Destination Resources, an administered object needs to be
+created. In the image above, see jms/MyQueue [pointing to Generic JMS
+RA and TQueue] created in the application server.<br>
+
+
+
+#Creates a javax.jms.Queue Administered Object and binds it to
+application server's JNDI tree at
+jms/MyQueue and points to jms/TQueue created in IBM MQ.<br>
+
+
+
+asadmin create-admin-object --raname genericra --restype
+javax.jms.Queue --property DestinationJndiName=TQueue jms/MyQueue<br>
+
+
+
+<br>
+
+
+
+#Creates a javax.jms.Topic Administered Object and binds it to
+application server's JNDI tree at
+jms/MyTopic and points to jms/TTopic created in IBM MQ.<br>
+
+
+
+asadmin create-admin-object --raname genericra --restype
+javax.jms.Topic --property DestinationJndiName=TTopic jms/MyTopic<br>
+
+
+
+<h2><a class="mozTocH2" name="mozTocId198246"></a>Component
+Deployment descriptors</h2>
+
+
+
+The sample deployment descriptor below assumes the application
+described in the <a href="https://genericjmsra.dev.java.net/docs/tibco-genericjmsra-integration-sample-doc/Integrating_Sun_Java_System_Application_Server_with_Tibco_JMS_using_the_Generic_Resource_Adapter_for_JMS.html">Tibco
+EMS integration how to guide available</a> in the genericjmsra
+java.net communite page.<br>
+
+
+
+<br>
+
+
+
+The deployment descriptors need to take into account the resource
+adapter and the connection resources that have been created. A sample
+sun-ejb-jar.xml for a Message Driven Bean that listens to a destination
+called TQueue in WebSphere MQ, and publishes back reply messages to a
+destination resource named jms/replyQueue&nbsp; is shown below.<br>
+
+
+
+<br>
+
+
+
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;<br>
+
+
+
+&lt;!DOCTYPE sun-ejb-jar PUBLIC '-//Sun Microsystems, Inc.//DTD Sun
+ONE
+Application Server 7.0 EJB 2.0//EN'
+'http://www.sun.com/software/sunone/appserver/dtds/sun-ejb-jar_2_0-0.dtd'&gt;<br>
+
+
+
+&lt;!-- Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+--&gt;<br>
+
+
+
+&lt;sun-ejb-jar&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp; &lt;enterprise-beans&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;
+&lt;unique-id&gt;1&lt;/unique-id&gt;<br>
+
+
+
+&nbsp;&nbsp; &lt;ejb&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;ejb-name&gt;SimpleMessageEJB&lt;/ejb-name&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;jndi-name&gt;jms/SampleQueue&lt;/jndi-name&gt;<br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&lt;!-- QCF used to publish reply messages --&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;resource-ref&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;res-ref-name&gt;jms/MyQueueConnectionFactory&lt;/res-ref-name&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;jndi-name&gt;<span style="color: rgb(0, 153, 0);">jms/MyQCF</span>&lt;/jndi-name&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;default-resource-principal&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;name&gt;mqm&lt;/name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;password&gt;mqm&lt;/password&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/default-resource-principal&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/resource-ref&gt;<br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&lt;!-- reply destination resource. Creating of this replyQueue
+destination resource is not<br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp; &nbsp; &nbsp; &nbsp;shown above, but the steps
+are similar to creating the&nbsp; "jms/MyQueue" resource --&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;resource-env-ref&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;resource-env-ref-name&gt;jms/replyQueue&lt;/resource-env-ref-name&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;jndi-name&gt;<span style="color: rgb(0, 153, 0);">jms/replyQueue</span>&lt;/jndi-name&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/resource-env-ref&gt;<br>
+
+
+
+<br>
+
+
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+&nbsp;&lt;!-- Activation related RA specific configuration for
+this MDB --&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;mdb-resource-adapter&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;!-- resource-adapter-mid points to the Generic Resource Adapter
+for
+JMS --&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;resource-adapter-mid&gt;<span style="color: rgb(0, 153, 0);">genericra</span>&lt;/resource-adapter-mid&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;DestinationType&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;javax.jms.Queue&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;ConnectionFactoryJndiName&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;<span style="color: rgb(0, 153, 0);">QCF</span>&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;DestinationJndiName&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;<span style="color: rgb(0, 153, 0);">TQueue</span>&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;MaxPoolSize&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;32&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;RedeliveryAttempts&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;0&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;ReconnectAttempts&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;4&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;ReconnectInterval&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;10&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;RedeliveryInterval&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;1&lt;/activation-config-property-value&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;SendBadMessagesToDMD&lt;/activation-config-property-name&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;false&lt;/activation-config-property-value&gt;
+<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config-property&gt;<br>
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&lt;/activation-config&gt;<br>
+
+
+
+&nbsp;&nbsp; &lt;/mdb-resource-adapter&gt;<br>
+
+
+
+&nbsp;&nbsp; &lt;/ejb&gt;<br>
+
+
+
+&nbsp;&nbsp; &lt;/enterprise-beans&gt;<br>
+
+
+
+&lt;/sun-ejb-jar&gt;<br>
+
+
+
+<br>
+
+
+
+The business logic encoded in Message Driven Bean could then lookup the
+configured QueueConnectionFactory/Destination resource <br>
+
+
+
+to create a connection as shown below.<br>
+
+
+
+<br>
+
+
+
+<div style="margin-left: 40px;">Context context = null;<br>
+
+
+
+ConnectionFactory connectionFactory = null;<br>
+
+
+
+logger.info("In PublisherBean.ejbCreate()");<br>
+
+
+
+try {<br>
+
+
+
+&nbsp;&nbsp;&nbsp; context = new InitialContext();<br>
+
+
+
+&nbsp;&nbsp;&nbsp; queue = (javax.jms.Queue) context.lookup
+("java:comp/env/<span style="color: rgb(0, 153, 0);">jms/replyQueue</span>");<br>
+
+
+
+&nbsp;&nbsp;&nbsp; connectionFactory = (ConnectionFactory)
+context.lookup("java:comp/env/<span style="color: rgb(0, 153, 0);">jms/MyQueueConnectionFactory</span>");<br>
+
+
+
+&nbsp;&nbsp;&nbsp; connection =
+connectionFactory.createConnection();<br>
+
+
+
+} catch (Throwable t) {<br>
+
+
+
+&nbsp;&nbsp;&nbsp; logger.severe("PublisherBean.ejbCreate:"
++ "Exception: " +<br>
+
+
+
+&nbsp;&nbsp;&nbsp; t.toString());<br>
+
+
+
+}<br>
+
+
+
+<br>
+
+
+
+</div>
+
+
+
+<h2><a name="Resources"></a>Resources</h2>
+
+
+
+<ul>
+
+
+
+  <li>Generic Resource Adapter for JMS community page -
+download/documentation</li>
+
+
+
+  
+  
+  <ul>
+
+
+
+    <li>Community Page <a href="https://genericjmsra.dev.java.net">https://genericjmsra.dev.java.net</a></li>
+
+
+
+    <li>Please use the user/dev mailing lists at the project site
+for all your queries.</li>
+
+
+
+  
+  
+  </ul>
+
+
+
+  <li><span class="pagesubtitle">Generic Resource
+Adapter for JMS user guide</span></li>
+
+
+
+  
+  
+  <ul>
+
+
+
+    <li><span class="pagesubtitle"><a href="https://genericjmsra.dev.java.net/docs/userguide/userguide.html">https://genericjmsra.dev.java.net/docs/userguide/userguide.html</a></span></li>
+
+
+
+  
+  
+  </ul>
+
+
+
+  <li><span class="pagesubtitle">Sun Java System
+Application Server 8.2 Platform Edition</span></li>
+
+
+
+  
+  
+  <ul>
+
+
+
+    <li><span class="pagesubtitle">Features, data
+sheet at <a href="http://www.sun.com/software/products/appsrvr_pe/index.xml">http://www.sun.com/software/products/appsrvr_pe/index.xml</a></span></li>
+
+
+
+    <li><span class="pagesubtitle">Download for free
+from Sun at <a href="http://java.sun.com/j2ee/1.4/download.html">http://java.sun.com/j2ee/1.4/download.html</a></span></li>
+
+
+
+  
+  
+  </ul>
+
+
+  <li><a href="http://java.sun.com/javaee/downloads/">Java EE 5 SDK preview/Sun Java System Application Server PE 9 beta</a></li>
+
+
+  <li>Developing Connectors chapter on&nbsp;<a href="http://docs.sun.com/app/docs/doc/819-4721">Sun Java System Application Server Platform Edition 8.2 Developer's Guide</a><font color="red"> </font></li>
+
+
+  
+  
+  <ul>
+
+
+    <li><a href="http://docs.sun.com/app/docs/doc/819-4721/6n6rrfqlq?a=view">http://docs.sun.com/app/docs/doc/819-4721/6n6rrfqlq?a=view</a></li>
+
+
+  
+  
+  </ul>
+
+
+  <li>Project GlassFish</li>
+
+
+  
+  
+  <ul>
+
+
+    <li><a href="http://glassfish.dev.java.net">http://glassfish.dev.java.net</a></li>
+
+
+  
+  
+  </ul>
+
+
+
+  <li><span class="pagesubtitle">WebSphere MQ
+Version 6.0</span></li>
+
+
+
+  
+  
+  <ul>
+
+
+
+    <li><span class="pagesubtitle"><a href="www.ibm.com/software/integration/wmq/v60/">www.ibm.com/software/integration/wmq/v60/</a></span></li>
+
+
+
+    <li><span class="pagesubtitle"><a href="http://www.ibm.com/software/integration/wmq/library/">http://www.ibm.com/software/integration/wmq/library/</a></span></li>
+
+
+
+  
+  
+  </ul>
+
+
+
+  <li><span class="pagesubtitle">For additional
+information on the '</span><span class="pagesubtitle">RMPolicy'
+    </span><span class="pagesubtitle">resource
+adapter configuration attribute refer issue#5 in the Generic RA issue
+tracker page. For documentation on usage of this attribute refer the
+Generic Resource Adapter for JMS user guide.</span></li>
+
+
+
+  
+  
+  <ul>
+
+
+
+    <li><span class="pagesubtitle"><a href="https://genericjmsra.dev.java.net/issues/show_bug.cgi?id=5">https://genericjmsra.dev.java.net/issues/show_bug.cgi?id=5</a></span></li>
+
+
+
+  
+  
+  </ul>
+
+
+
+</ul>
+<span class="pagesubtitle"><br>
+Thanks to Binod PG for reviewing this documentation and providing feedback.<br>
+
+</span>
+
+</body>
+</html>

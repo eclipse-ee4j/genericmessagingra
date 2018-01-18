@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE project [ <!ENTITY commonSetup SYSTEM "file:../../config/properties.xml"> <!ENTITY commonBuild SYSTEM "file:../../config/common.xml"> <!ENTITY testproperties SYSTEM "file:./build.properties"> ]>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<project name="tibcosample" default="all" basedir="." >
+
+    &commonSetup;
+    &commonBuild;
+    &testproperties;
+                         
+    <property name="pburl" value="jdbc:pointbase:server://localhost:9092/sample" />
+                                                                                                                     
+    <target name="deploy" depends="build,deploy-ra,setup,deploy-ear"/>
+    <target name="undeploy" depends="undeploy-ear,unsetup,undeploy-ra"/>
+
+    <target name="clean" depends="init-common">
+        <antcall target="clean-common"/>
+    </target>
+
+    <target name="compile" depends="init-common,clean">
+        <antcall target="compile-common">
+            <param name="src" value="ejb"/>
+        </antcall>
+<!--
+        <antcall target="compile-common">
+            <param name="src" value="servlet"/>
+        </antcall>
+-->
+    </target>
+                                                                                                                                              
+    <target name="build" depends="compile">
+	    <property name="hasWebclient" value="yes"/>
+	    <antcall target="webclient-war-common">
+		    <param name="hasWebclient" value="yes"/>
+		    <param name="webclient.war.classes" value="**/*.class"/>
+	    </antcall>
+	    <antcall target="ejb-jar-common">
+		    <param name="ejbjar.classes" value="**/*.class"/>
+	    </antcall>
+	    <antcall target="ear-common"/>
+    </target>
+
+<target name="deploy-ra" depends="init-common">
+                <!-- create RA config. By default configured against SJSMQ -->
+                <antcall target="create-resource-adapter-config-common">
+                    <param name="raconfig.property" value="SupportsXA=true:ProviderIntegrationMode=jndi:UserName=admin:Password=&quot; &quot;:LogLevel=finest:JndiProperties=java.naming.factory.url.pkgs\=com.tibco.tibjms.naming,java.naming.factory.initial\=com.tibco.tibjms.naming.TibjmsInitialContextFactory,java.naming.provider.url\=localhost\:7222"/>
+                    <param name="raname" value="genericra" />
+                </antcall>
+                <!-- deploy RA -->
+                <antcall target="deploy-rar-common"/>
+        </target>
+
+        <target name="setup" depends="deploy-ra">
+                <antcall target="create-connector-connpool">
+                        <param name="ra.name" value="genericra"/>
+                        <param name="connection.defname" value="javax.jms.ConnectionFactory"/>
+                        <!--HACK-->
+                        <param name="connector.conpool.name" value="--property ConnectionFactoryJndiName=XAQCF mypool"/>
+                </antcall>
+
+                <antcall target="create-connector-resource-common">
+                        <param name="connector.conpool.name" value="mypool"/>
+                        <param name="connector.jndi.name" value="jms/ConnectionFactory"/>
+                </antcall>
+                                                                                                                                              
+                <antcall target="create-admin-object-common">
+                        <param name="adminobject.raname" value="genericra"/>
+                        <param name="adminobject.restype" value="javax.jms.Queue"/>
+                        <param name="adminobject.property" value="DestinationJndiName=jms/TQueue"/>
+                        <param name="adminobject.jndiname" value="jms/Queue"/>
+                </antcall>
+                                                                                                                                              
+                <antcall target="create-jdbc-connpool-common">
+                        <param name="db.class" value="com.pointbase.jdbc.jdbcDataSource"/>
+	                <param name="jdbc.resource.type" value="javax.sql.DataSource"/>
+	                <param name="jdbc.conpool.name" value="mypool1"/>
+	                <param name="db.url" value="${pburl}"/>
+	                <param name="db.user" value="pbpublic"/>
+	                <param name="db.pwd" value="pbpublic"/>
+                </antcall>
+                <antcall target="create-jdbc-resource-common">
+                        <param name="jdbc.conpool.name" value="mypool1"/>
+                        <param name="jdbc.resource.name" value="jdbc/ejbTutorialDB"/>
+                </antcall>
+        </target>
+
+       <target name="unsetup" depends="init-common">
+                <antcall target="delete-connector-resource-common">
+                        <param name="connector.jndi.name" value="jms/ConnectionFactory"/>
+                </antcall>
+
+                <antcall target="delete-connector-connpool-common">
+                        <param name="connector.conpool.name" value="mypool"/>
+                </antcall>
+                                                                                                                                              
+                <antcall target="delete-admin-object-common">
+                        <param name="adminobject.jndiname" value="jms/Queue "/>
+                </antcall>
+  
+                <antcall target="delete-jdbc-resource-common">
+                        <param name="jdbc.resource.name" value="jdbc/ejbTutorialDB"/>
+                </antcall>
+                                                                                                  
+                <antcall target="delete-jdbc-connpool-common">
+                        <param name="jdbc.conpool.name" value="mypool1"/>
+                </antcall>
+        </target>
+
+         <target name="undeploy-ra" depends="init-common">
+                <antcall target="delete-resource-adapter-config-common">
+                     <param name="raname" value="genericra" />
+                </antcall>
+                <antcall target="undeploy-rar-common">
+                        <param name="undeployrar" value="genericra" />
+                </antcall>
+         </target>
+
+ 
+    <target name="deploy-ear" depends="init-common">
+        <antcall target="deploy-common"/>
+    </target>
+
+    <target name="undeploy-ear" depends="init-common">
+        <antcall target="undeploy-common"/>
+    </target>
+
+
+
+</project>

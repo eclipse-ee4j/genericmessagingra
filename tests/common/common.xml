@@ -1,0 +1,1100 @@
+<!--
+
+    Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<project name="commondotxml" basedir=".">
+
+<!-- Add useful tasks such as propertycopy from ant-contrib.jar -->
+<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+<!-- 
+    This is the top level build file that should be 
+    imported into all the leaf level build files 
+-->
+
+    <target name="gmq" description="Sets up this jms implementation to test">
+        <property name="genericra.jmsimpl.id" value="gmq" />
+    	<property name="genericra.raconfig.jmqimpl.friendlyname" value="GlassFishMQ" />
+        <echo>Setting jms implementation to ${genericra.jmsimpl.id}</echo>
+    </target>
+		
+    <target name="wljms" description="Sets up this jms implementation to test">
+        <property name="genericra.jmsimpl.id" value="wljms" />
+    	<property name="genericra.raconfig.jmqimpl.friendlyname" value="WebLogicJMS" />
+        <echo>Setting jms implementation to ${genericra.jmsimpl.id}</echo>
+    </target>	
+	
+    <target name="gfv2" description="Specifies which version of Glassfish">
+        <property name="glassfish.version" value="gfv2" />
+        <property name="appserver.friendlyname" value="GlassFish" />
+        <echo>Setting glassfish version to ${glassfish.version}</echo>
+    </target>
+		
+    <target name="gfv3" description="Specifies which version of Glassfish">
+        <property name="glassfish.version" value="gfv3" />
+        <property name="appserver.friendlyname" value="GlassFish" />    	
+        <echo>Setting glassfish version to ${glassfish.version}</echo>
+    </target>	
+    
+    <target name="sync" description="Sets up the value of DeliveryType to Synchronous">
+        <property name="genericra.raconfig.deliverytype" value="Synchronous" />
+        <echo>Setting DeliveryType to ${genericra.raconfig.deliverytype}</echo>
+    </target>
+    
+    <target name="async" description="Sets up the value of DeliveryType to Asynchronous">
+        <property name="genericra.raconfig.deliverytype" value="Asynchronous" />
+        <echo>Setting DeliveryType to ${genericra.raconfig.deliverytype}</echo>
+    </target>    
+    
+	<target name="check-genericra.jmsimpl.id">
+        <fail unless="genericra.jmsimpl.id" >$${genericra.jmsimpl.id} needs to be specified: call a jmsimpl target first (gmq)</fail>
+	</target>
+	
+	<target name="check-genericra.raconfig.deliverytype">
+	   <fail unless="genericra.raconfig.deliverytype" >$${genericra.raconfig.deliverytype} needs to be specified: call a DeliveryType target first (sync or async)</fail>
+	</target>    
+	
+	<target name="check-glassfish.version">
+	   <fail unless="glassfish.version" >$${glassfish.version} needs to be specified: call an appropriate target first (gfv2 or gfv3)</fail>
+	</target>  	
+	
+    <target name="xa" description="Specify that SupportXA=true">
+        <property name="genericra.raconfig.supportsxa" value="true" />
+    	<property name="genericra.raconfig.supportsxa.friendlyname" value="XA" />
+        <echo>Setting SupportXA to ${genericra.raconfig.supportsxa}</echo>
+    </target>	
+	
+    <target name="noxa" description="Specify that SupportXA=false">
+        <property name="genericra.raconfig.supportsxa" value="false" />
+        <property name="genericra.raconfig.supportsxa.friendlyname" value="NoXA" />
+        <echo>Setting SupportXA to ${genericra.raconfig.supportsxa}</echo>
+    </target>		
+	
+	<target name="check-genericra.raconfig.supportsxa">
+	   <fail unless="genericra.raconfig.supportsxa" >$${genericra.raconfig.supportsxa} needs to be specified: call xa or noxa first</fail>
+	</target>  	
+
+
+<!-- ================================================================ -->
+<!-- Targets to clean class files and jars files -->
+<!-- 
+Variables used: 
+    ${build.classes.dir} 
+    ${assemble.dir}
+-->
+<!-- ================================================================ -->
+<target name="clean-classes-common" depends="init-common">
+    <echo message="common.xml: Cleaning test source files: ${build.base.dir}" 
+        level="verbose"/>
+  <delete dir="${build.classes.dir}"/>
+</target>
+    
+<target name="clean-jars-common" depends="init-common">
+  <delete dir="${assemble.dir}"/>
+</target>
+
+<target name="clean-common" depends="init-common">
+  <antcall target="clean-classes-common"/>
+  <antcall target="clean-jars-common"/>
+</target>
+
+<!-- ================================================================ -->
+<target name="compile-common" depends="init-common,download-junit">
+    <antcall target="compileeach-common">
+        <param name="src" value="../common/ejb"/>
+    </antcall> 
+    <antcall target="compileeach-common">
+        <param name="src" value="ejb"/>
+    </antcall> 
+    <antcall target="compileeach-common">
+        <param name="src" value="../common/client"/>
+    </antcall>    	
+    <antcall target="compileeach-common">
+        <param name="src" value="client"/>
+    </antcall>
+    <antcall target="compileeach-common">
+        <param name="src" value="../common/junit"/>
+    </antcall>   	
+    <antcall target="compileeach-common">
+        <param name="src" value="junit"/>
+    </antcall> 
+</target>
+	
+<target name="compileeach-common" depends="init-common,download-junit">
+  <mkdir dir="${build.classes.dir}"/>
+  <echo message="common.xml: Compiling test source files" level="verbose"/>
+  <echo message="${src} is the source"/>
+  
+	<available file="${src}" type="dir" property="src.present"/>
+	<if>
+		  <isset property="src.present"/>
+		  <then>
+  <javac srcdir="${src}"
+    destdir="${build.classes.dir}"
+    classpath="${compile.classpath}"
+    debug="on"
+    failonerror="true"/>
+		  </then>
+		  <else>
+			<echo>Cannot compile: ${src} does not exist</echo>
+		  </else>
+	</if>
+	</target>
+	
+	<!-- ================================================================ -->	
+	<!-- Download the JUnit jars   TODO sort out proxy config             -->
+    <target name="download-junit">
+    	<available file="${junit.jar}" type="file" property="junit.jar.present"/>
+    	<if>
+    	  <isset property="junit.jar.present"/>
+    	  <then>
+    	  </then>
+    	  <else>
+    	  	<get src="${junit.url}" dest="${junit.jar}" verbose="true"/>
+    	  </else>
+        </if>
+</target>
+
+<!-- ================================================================ -->
+<!-- This is the external target war-common to be called up build files
+usage:
+<antcall target="war-common">
+<param name="war.classes" value="MyServlet.class,MyOtherServlet.class"/>
+</antcall>
+Assumption: All the static content is placed in webcontent directory
+
+Variables Used:
+    ${war.file}
+    ${build.classes.dir}
+    ${appname}    
+    ${assemble.dir}
+    ${web.xml}
+    ${tlds}
+    ${tagfiles}
+    ${APS_HOME}
+    ${webclient.war.files}
+    ${webclient.war.classes}
+-->
+<!-- ================================================================ -->
+
+<target name="webclient-war-common" if="hasWebclient" depends="init-common">
+  <mkdir dir="${assemble.dir}"/>
+  <antcall target="package-war-common">
+    <param name="war.classes" value="${build.classes.dir}"/>
+    <param name="war.file" value="${assemble.dir}/${appname}-web.war"/>
+  </antcall>
+</target>
+
+<target name="clear">
+    <delete file="${war.file}"/>  
+</target>
+
+<target name="copy-tlds" if="tlds-exist" depends="clear,test-tlds-exist">
+  <mkdir dir="${build.classes.dir}/tmp/WEB-INF/tlds"/>
+  <copy todir="${build.classes.dir}/tmp/WEB-INF/tlds" failonerror="false">
+      <fileset dir="${tlds}">
+          <include name="**/*.tld"/>
+      </fileset>
+  </copy>
+</target>
+
+<target name="copy-tagfiles" if="tagfiles-exist" depends="clear,test-tagfiles-exist">
+  <mkdir dir="${build.classes.dir}/tmp/WEB-INF/tags"/>
+  <copy todir="${build.classes.dir}/tmp/WEB-INF/tags" failonerror="false">
+      <fileset dir="${tagfiles}">
+          <include name="**/*.tag"/>
+      </fileset>
+  </copy>
+</target>
+
+<target name="package-war-common" depends="copy-tlds,copy-tagfiles">
+  <echo message="my build classes dir is:${build.classes.dir}" level="verbose"/>
+  <mkdir dir="${build.classes.dir}/tmp"/>
+  <mkdir dir="${build.classes.dir}/tmp/WEB-INF"/>
+  <mkdir dir="${build.classes.dir}/tmp/WEB-INF/classes"/>
+  <mkdir dir="${build.classes.dir}/tmp/WEB-INF/lib"/>
+  <mkdir dir="lib"/>
+  <copy file="${sun-web.xml}" 
+      tofile="${build.classes.dir}/tmp/WEB-INF/sun-web.xml" failonerror="false"/>
+  <echo message="Calling copy"/>
+  <copy todir="${build.classes.dir}/tmp/WEB-INF/lib" failonerror="false">
+      <fileset dir="lib">
+          <include name="**/*.jar"/>
+          <include name="**/*.zip"/>
+      </fileset>
+  </copy>
+  <copy file="${webservices.xml}" 
+        tofile="${build.classes.dir}/tmp/WEB-INF/webservices.xml"
+        failonerror="false"/>
+  <copy file="${mappingfile.location}/${mappingfile.name}" 
+        tofile="${build.classes.dir}/tmp/${mappingfile.name}"
+        failonerror="false"/>
+  <copy file="${wsdlfile.location}/${wsdlfile.name}" 
+        tofile="${build.classes.dir}/tmp/WEB-INF/wsdl/${wsdlfile.name}"
+        failonerror="false"/>
+  <copy file="${tagPlugins.xml}" 
+        tofile="${build.classes.dir}/tmp/WEB-INF/tagPlugins.xml"
+        failonerror="false"/>
+  <copy file="${web.xml}" 
+      tofile="${build.classes.dir}/tmp/WEB-INF/web.xml"/>
+  <copy todir="${build.classes.dir}/tmp/WEB-INF/classes">
+      <fileset dir="${war.classes}">
+          <include name="**/*.class"/>
+      </fileset>
+  </copy>
+  <echo message="Creating war file ${war.file}" level="verbose"/>
+  <jar jarfile="${war.file}" update="true">
+    <fileset dir="${build.classes.dir}/tmp" casesensitive="yes">
+      <include name="**/*class*"/>
+    </fileset>
+    <fileset dir="${basedir}/docroot" casesensitive="yes">
+      <include name="**/*.html"/>
+      <include name="**/*.jsp"/>
+      <include name="**/*.jspx"/>
+      <include name="**/*.gif"/>
+      <include name="**/*.do"/>
+      <include name="**/*.txt"/>
+      <exclude name="**/*.java,**/*.xml,**/*.properties"/>
+    </fileset>
+    <fileset dir="${build.classes.dir}/tmp/" casesensitive="true">
+    <include name="WEB-INF/web.xml"/>
+    <include name="WEB-INF/sun-web.xml"/>
+    <include name="WEB-INF/webservices.xml"/>
+    <include name="WEB-INF/tagPlugins.xml"/>
+    <include name="WEB-INF/lib/*"/>
+    <include name="WEB-INF/tlds/*"/>
+    <include name="WEB-INF/tags/*"/>
+    <include name="WEB-INF/wsdl/${wsdlfile.name}"/>
+    <include name="${mappingfile.name}"/>
+    </fileset>
+  </jar>       
+  <echo message="created war file ${war.file}" level="verbose"/>
+  <delete dir="${build.classes.dir}/tmp/WEB-INF" failonerror="false"/> 
+  <echo message="my webclient war classes are:${webclient.war.classes}" 
+      level="verbose"/>
+</target>
+
+<target name="test-tlds-exist">
+  <available file="${tlds}" property="tlds-exist"/>
+</target>
+
+<target name="test-tagfiles-exist">
+  <available file="${tagfiles}" property="tagfiles-exist"/>
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to package the ejb application to jar file -->
+<!--
+Variables Used:
+    ${ejb.jar}
+    ${build.classes.dir}
+    ${ejb-jar.xml}    
+    ${sun-ejb-jar.xml}    
+    ${sun-cmp-mappings.xml}    
+    ${metainf.dir}    
+    ${ejbjar.files}
+    ${dbschema}
+-->
+<!-- ================================================================ -->
+<target name="package-ejbjar-common" depends="check-genericra.jmsimpl.id, check-genericra.raconfig.supportsxa">
+  <delete file="${ejb.jar}"/>
+  <echo message="common.xml: Generating ejb-jar inside build directory" 
+      level="verbose"/>
+  <mkdir dir="${build.classes.dir}/META-INF"/>
+	
+  <if>
+  	<equals arg1="${genericra.raconfig.supportsxa}" arg2="false" />
+  	<then>
+  		<!-- XA is not supported so force the transactional attributes to be NotSupported -->
+        <property name="ejb-jar.assembly-descriptor.container-transaction.trans-attribute" value="NotSupported"/>   
+        <property name="ejb-jar.assembly-descriptor.container-transaction.trans-attribute2" value="NotSupported"/>   
+  	</then>
+  	<else>
+	  <!-- XA is supported so use the specified values of the transactional attributes -->
+  	  <!-- Select the appropriate value of ejb-jar.assembly-descriptor.container-transaction.trans-attribute -->
+  	  <propertycopy property="ejb-jar.assembly-descriptor.container-transaction.trans-attribute" from="xa.ejb-jar.assembly-descriptor.container-transaction.trans-attribute"/>   
+  	  <!-- Select the appropriate value of ejb-jar.assembly-descriptor.container-transaction.trans-attribute2 --> 	
+  	  <if>
+  	    <isset property="xa.ejb-jar.assembly-descriptor.container-transaction.trans-attribute2"/>
+  	    <then>
+  	      <propertycopy property="ejb-jar.assembly-descriptor.container-transaction.trans-attribute2" from="xa.ejb-jar.assembly-descriptor.container-transaction.trans-attribute2"/>   
+  	    </then>
+  	    <else>
+  	      <property name="ejb-jar.assembly-descriptor.container-transaction.trans-attribute2" value="ERROR"/>   
+  	    </else>
+  	  </if>
+  	</else>
+  </if>
+ 		
+  <!-- now copy ejb-jar.xml, substituting strings as required -->
+  <copy file="${ejb-jar.xml}" tofile="${build.classes.dir}/META-INF/ejb-jar.xml">
+      <filterset>
+        <filter token="ejb-jar.assembly-descriptor.container-transaction.trans-attribute" value="${ejb-jar.assembly-descriptor.container-transaction.trans-attribute}"/>
+        <filter token="ejb-jar.assembly-descriptor.container-transaction.trans-attribute2" value="${ejb-jar.assembly-descriptor.container-transaction.trans-attribute2}"/>
+     </filterset> 
+  </copy>
+  
+  <copy file="${webservices.xml}" 
+    tofile="${build.classes.dir}/META-INF/webservices.xml"
+    failonerror="false"/>
+    
+  <!-- Select the appropriate value of various strings that will be substituted into sun-ejb-jar.xml -->
+  <propertycopy property="activation-config.DestinationProperties" from="${genericra.jmsimpl.id}.activation-config.DestinationProperties"/>  
+  <if>
+    <isset property="${genericra.jmsimpl.id}.activation-config.DeadMessageDestinationProperties"/>
+    <then>
+      <propertycopy property="activation-config.DeadMessageDestinationProperties" from="${genericra.jmsimpl.id}.activation-config.DeadMessageDestinationProperties"/>   
+    </then>
+    <else>
+      <property name="activation-config.DeadMessageDestinationProperties" value="ERROR"/>   
+    </else>  	
+  </if>
+  <propertycopy property="activation-config.ConnectionFactoryJndiName" from="${genericra.jmsimpl.id}.activation-config.ConnectionFactoryJndiName"/>   
+  <propertycopy property="activation-config.DestinationJndiName" from="${genericra.jmsimpl.id}.activation-config.DestinationJndiName"/>   
+    
+  <!-- now copy sun-ejb-jar.xml, substituting strings as required -->	
+  <copy file="${sun-ejb-jar.xml}" tofile="${build.classes.dir}/META-INF/sun-ejb-jar.xml">
+     <filterset>
+        <filter token="activation-config.DestinationProperties" value="${activation-config.DestinationProperties}"/>
+        <filter token="activation-config.DeadMessageDestinationProperties" value="${activation-config.DeadMessageDestinationProperties}"/>
+        <filter token="activation-config.ConnectionFactoryJndiName" value="${activation-config.ConnectionFactoryJndiName}"/>
+        <filter token="activation-config.DestinationJndiName" value="${activation-config.DestinationJndiName}"/>
+     </filterset>
+  </copy>
+  <copy file="${sun-cmp-mappings.xml}"
+    tofile="${build.classes.dir}/META-INF/sun-cmp-mappings.xml"
+    failonerror="false"/>
+  <copy file="${dbschema}" todir="${build.classes.dir}" failonerror="false"/>
+  <jar jarfile="${ejb.jar}" basedir="${ejbjar.files}" update="true"
+    includes ="${ejbjar.classes}">
+    <metainf dir="${build.classes.dir}/META-INF">
+      <include name="ejb-jar.xml"/>
+      <include name="webservices.xml"/>
+      <include name="sun-ejb-jar.xml"/>
+      <include name="sun-cmp-mappings.xml"/>
+    </metainf>
+  </jar>       
+  <delete dir="${build.classes.dir}/META-INF" failonerror="false"/>
+  <delete file="${build.classes.dir}/*.dbschema" failonerror="false"/>
+</target>  
+
+<!-- ================================================================ -->
+<!-- Target to package the appclient application to jar file -->
+<!--
+Variables Used:
+    ${appclient.jar}
+    ${appclientjar.classes}    
+    ${appclientjar.files}    
+    ${build.classes.dir}
+    ${application-client.xml}    
+    ${sun-application-client.xml}    
+-->
+<!-- ================================================================ -->
+<target name="package-appclientjar-common">
+  <delete file="${appclient.jar}"/>
+  <echo message="common.xml: Generating appclient-jar inside build directory" 
+      level="verbose"/>
+  <mkdir dir="${build.classes.dir}/META-INF"/>
+  <copy file="${application-client.xml}" tofile="${build.classes.dir}/META-INF/application-client.xml"/>
+  <copy file="${sun-application-client.xml}" tofile="${build.classes.dir}/META-INF/sun-application-client.xml"
+        failonerror="false"/>
+  <jar jarfile="${appclient.jar}" basedir="${appclientjar.files}" 
+    update="true" includes ="${appclientjar.classes}" 
+    manifest="./client/manifest.mf">         
+    <metainf dir="${build.classes.dir}/META-INF">
+      <include name="application-client.xml"/>
+      <include name="sun-application-client.xml"/>
+    </metainf>
+  </jar>       
+</target> 
+
+<!-- ================================================================ -->
+<!-- Target to create the ejb application jar file -->
+<!-- ================================================================ -->
+<target name="ejb-jar-common" depends="init-common">
+  <mkdir dir="${assemble.dir}"/>
+  <antcall target="package-ejbjar-common">
+    <param name="ejbjar.files" value="${build.classes.dir}"/>
+    <param name="ejb.jar" value="${assemble.dir}/${appname}-ejb.jar"/>
+  </antcall>
+</target>     
+
+<!-- ================================================================ -->
+<!-- Target to create the appclient jar file -->
+<!-- ================================================================ -->
+<target name="appclient-jar-common" depends="init-common">
+  <mkdir dir="${assemble.dir}"/>
+  <antcall target="package-appclientjar-common">
+    <param name="appclientjar.files" 
+      value="${build.classes.dir}"/>
+    <param name="appclient.jar" 
+      value="${assemble.dir}/${appname}-client.jar"/>
+  </antcall>
+</target> 
+
+<!-- ================================================================ -->
+<!-- Target to assemble the ejb application to ear file -->
+<!-- ================================================================ -->
+<target name="build-ear-common" depends="fixFiles,ejb-jar-common,appclient-jar-common,webclient-war-common">
+  <delete file="${assemble.dir}/${appname}.ear"/>
+  <mkdir dir="${assemble.dir}"/>
+  <mkdir dir="${build.classes.dir}/META-INF"/>   
+		
+  <copy file="${application.xml}" tofile="${build.classes.dir}/META-INF/application.xml">
+	<filterset>
+	  <filter token="appname" value="${appname}"/>
+	</filterset> 
+  </copy>	
+	
+  <copy file="${sun-application.xml}" tofile="${build.classes.dir}/META-INF/sun-application.xml" failonerror="false"/> 
+  <!-- ear earfile="${assemble.dir}/${appname}App.ear"  appxml="META-INF/application.xml" -->
+  <ear earfile="${assemble.dir}/${appname}App.ear"  appxml="${build.classes.dir}/META-INF/application.xml">
+
+	<fileset dir="${assemble.dir}">
+      <include name="*.jar"/>
+      <include name="*.war"/>
+    </fileset>
+
+    <fileset dir="${build.classes.dir}">
+	  <include name="META-INF/sun-application.xml"/>
+    </fileset>
+<!--
+    <fileset dir="${env.APS_HOME}/lib" includes="reporter.jar"/>
+-->
+  </ear>        
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to execute asadmin commands  -->
+<!-- ================================================================ -->
+<target name="asadmin-common">
+  <echo message="Doing admin task ${admin.command}" level="verbose"/>
+  <echo message="Operand ${operand.props}"  level="verbose"/>
+  <echo message="asadmin ${admin.command} ${as.props} ${operand.props}"/>
+    <exec executable="${ASADMIN}" failonerror="true">
+        <arg line="${admin.command} ${as.props} ${operand.props}" />        
+    </exec>
+</target>
+
+<target name="asadmin-common-ignore-fail">
+  <echo message="Doing admin task ${admin.command} (ignore failures)" 
+      level="verbose"/>
+  <echo message="Operand ${operand.props}"  level="verbose"/>
+  <echo message="asadmin ${admin.command} ${as.props} ${operand.props}"/>
+    <exec executable="${ASADMIN}" failonerror="false">
+        <arg line="${admin.command} ${as.props} ${operand.props}" />        
+    </exec>
+</target>
+
+
+
+
+<!-- ================================================================ -->
+<!-- J2EE Connector related targets 			     	  -->
+<!-- ================================================================ -->
+
+<target name="create-connector-connpool-common"
+        depends="check-genericra.raconfig.supportsxa, init-common, create-connector-connpool"/>
+
+<target name="create-connector-connpool" depends="init-common">
+	
+  <!-- If connector.pool.property is set then use property ${connector.pool.property} -->
+  <if>
+  	 <isset property="connector.pool.property"/>
+	 <then>
+	    <property name="temp1" value="--property ${connector.pool.property} ${connector.conpool.name}"/>
+	 </then>
+	 <else>
+		<property name="temp1" value="${connector.conpool.name}"/>
+	 </else>
+  </if>
+
+  <!-- If genericra.raconfig.supportsxa is false then use transactionsupport LocalTransaction -->
+  <!-- Note that whether the session is transacted or not depends on the args to createSession(), not this property -->
+  <if>
+	<isset property="genericra.raconfig.supportsxa"/>
+	<then>
+      <if>
+      	<equals arg1="${genericra.raconfig.supportsxa}" arg2="true" />
+		<then>
+		  <property name="temp2" value="${temp1}"/>
+		</then>
+	    <else>
+          <property name="temp2" value="--transactionsupport LocalTransaction ${temp1}"/>
+	    </else>
+	  </if>			
+	</then>
+    <else>
+	   <property name="temp2" value="${temp1}"/>
+	</else>
+  </if>	
+	
+  <echo message="asadmin create-connector-connection-pool ${as.props} --raname ${ra.name} --connectiondefinition ${connection.defname} --target ${appserver.instance.name} ${temp2} "/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="create-connector-connection-pool"/>
+    <arg line="${as.props}"/>
+    <arg line="--raname ${ra.name}"/>
+    <arg line="--connectiondefinition ${connection.defname}"/>
+    <arg line="--target ${appserver.instance.name}"/>
+    <arg line="${temp2} "/>
+  </exec>
+</target>
+
+<target name="delete-connector-connpool-common" depends="init-common">
+  <echo message="asadmin delete-connector-connection-pool ${as.props} --cascade=true ${connector.conpool.name}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="delete-connector-connection-pool"/>
+    <arg line="${as.props}"/>
+    <arg line="--cascade=true"/>
+    <arg line="${connector.conpool.name}"/>
+  </exec>
+</target>
+
+<!--  create/delete Connector resource  -->
+<target name="create-connector-resource-common" depends="init-common">
+  <echo message="asadmin create-connector-resource ${as.props} --poolname ${connector.conpool.name} --target ${appserver.instance.name} ${connector.jndi.name}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="create-connector-resource"/>
+    <arg line="${as.props}"/>
+    <arg line="--poolname ${connector.conpool.name}"/>
+    <arg line="--target ${appserver.instance.name}"/>
+    <arg line="${connector.jndi.name}"/>
+  </exec>
+</target>
+
+<target name="delete-connector-resource-common" depends="init-common">
+  <echo message="asadmin delete-connector-resource ${as.props} ${connector.jndi.name}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="delete-connector-resource"/>
+    <arg line="${as.props}"/>
+    <arg line="${connector.jndi.name}"/>
+  </exec>
+</target>
+
+    <!-- target to delete and create resourceadapter configs -->
+	<target name="create-resource-adapter-config-common" depends="init-common">
+		<echo>asadmin create-resource-adapter-config ${as.props} --property ${raconfig.property} ${as.userpass} ${raname}</echo>
+		<exec executable="${ASADMIN}" failonerror="false">
+			<arg line="create-resource-adapter-config" />
+			<arg line="${as.props}"/>
+			<arg line="--property ${raconfig.property}" />
+			<arg line="${as.userpass} ${raname}" />
+		</exec>
+	</target>
+    
+	<target name="delete-resource-adapter-config-common" depends="init-common">
+		<echo message="Deleting resource adapter config for resource adapter ${raname}" />
+		<exec executable="${ASADMIN}" failonerror="false">
+			<arg line="delete-resource-adapter-config" />
+			<arg line="${as.props}"/>
+			<arg line="${as.userpass} ${raname}" />
+		</exec>
+	</target>
+
+<!--  deploy/undeploy RAR files                     -->
+<target name="deploy-rar-common" depends="init-common">
+  <echo message="Deploying ${rarfile}" level="verbose"/>
+  <echo message="asadmin deploy ${as.port} --target ${appserver.instance.name} ${as.userpass} ${rarfile}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="deploy"/>
+    <arg line="${as.port}"/>
+  	<arg line="--target ${appserver.instance.name}"/>
+    <arg line="${as.userpass} ${rarfile}"/>
+  </exec>
+  <echo message="Deploying ${rarfile} on ${appserver.instance.name}"/>
+</target>
+
+<target name="undeploy-rar-common" depends="init-common">
+  <echo message="Undeploying ${undeployrar}" level="verbose"/>
+  <echo message="asadmin ${as.props} undeploy --target ${appserver.instance.name} ${as.userpass} ${undeployrar}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="undeploy"/>
+    <arg line="${as.port}"/>
+    <arg line="${as.userpass} ${undeployrar}"/>
+  </exec>
+</target>
+
+<target name="create-admin-object-common" depends="init-common">
+  <echo message="Creating admin object with name ${adminobject.jndiname}" />
+  <echo message="destination properties= ${adminobject.property}"/>
+  <echo>asadmin create-admin-object ${as.props} --target ${appserver.instance.name} --restype ${adminobject.restype} --property ${adminobject.property} --raname ${adminobject.raname} ${adminobject.jndiname}</echo>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="create-admin-object"/>
+    <arg line="${as.props}"/>
+    <arg line="--target ${appserver.instance.name}"/>
+    <arg line="--restype ${adminobject.restype}"/>
+    <arg line="--property ${adminobject.property}"/>
+    <arg line="--raname ${adminobject.raname}"/>
+    <arg line="${adminobject.jndiname}"/>
+  </exec>
+</target>
+
+<target name="delete-admin-object-common" depends="init-common">
+  <echo message="Delete admin object with name ${adminobject.jndiname}" />
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="delete-admin-object"/>
+    <arg line="${as.props}"/>
+    <arg line="--target ${appserver.instance.name}"/>
+    <arg line="${adminobject.jndiname}"/>
+  </exec>
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to create JDBC connection pool  -->
+<!-- ================================================================ -->
+<target name="create-jdbc-connpool-common" depends="init-common">
+<echo message="created jdbc connection pool ${jdbc.conpool.name}" 
+    level="verbose"/>
+  <antcall target="asadmin-common-ignore-fail">
+    <param name="admin.command"
+      value="create-jdbc-connection-pool 
+        --datasourceclassname ${db.class} 
+        --restype ${jdbc.resource.type}
+        --target ${appserver.instance.name}" />
+    <param name="operand.props" value="${jdbc.conpool.name}" />
+  </antcall>
+  <antcall target="asadmin-common-ignore-fail">
+    <param name="admin.command" value="set" />
+    <param name="operand.props"
+      value="${resources.dottedname.prefix}.jdbc-connection-pool.${jdbc.conpool.name}.property.DatabaseName=${db.url}"/>
+  </antcall>
+  <antcall target="asadmin-common-ignore-fail">
+    <param name="admin.command" value="set" />
+    <param name="operand.props"
+      value="${resources.dottedname.prefix}.jdbc-connection-pool.${jdbc.conpool.name}.property.User=${db.user}" />
+  </antcall>
+  <antcall target="asadmin-common-ignore-fail">
+    <param name="admin.command" value="set" />
+    <param name="operand.props"
+      value="${resources.dottedname.prefix}.jdbc-connection-pool.${jdbc.conpool.name}.property.Password=${db.pwd}" />
+  </antcall>
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to delete JDBC connection-pool  -->
+<!-- ================================================================ -->
+<target name="delete-jdbc-connpool-common" depends="init-common">
+<echo message="asadmin delete-jdbc-connection-pool ${as.props} --cascade=true --target ${appserver.instance.name} ${jdbc.conpool.name}"/>
+<exec executable="${ASADMIN}" failonerror="false">
+        <arg line="delete-jdbc-connection-pool"/>
+        <arg line="${as.props}"/>
+        <arg line="--port ${admin.port}"/>
+        <arg line="--cascade=true"/>
+        <arg line="--target ${appserver.instance.name}"/>
+        <arg line="${jdbc.conpool.name}"/>
+    </exec>
+    <echo message="cmd executed for ${appserver.instance.name}"/>  
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to create JDBC resource  -->
+<!-- ================================================================ -->
+<target name="create-jdbc-resource-common" depends="init-common">
+<echo message="Creating jdbc resource pool ${jdbc.resource.name}" 
+    level="verbose"/>
+  <echo message="asadmin create-jdbc-resource ${as.props} --connectionpoolid ${jdbc.conpool.name} --target ${appserver.instance.name} ${jdbc.resource.name}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+        <arg line="create-jdbc-resource"/>
+        <arg line="${as.props}"/>
+        <arg line="--port ${admin.port}"/>
+        <arg line="--connectionpoolid ${jdbc.conpool.name}"/>
+        <arg line="--target ${appserver.instance.name}"/>
+        <arg line="${jdbc.resource.name}"/>
+    </exec>
+    <echo message="cmd executed for ${appserver.instance.name}"/>
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to delete JDBC resource  -->
+<!-- ================================================================ -->
+<target name="delete-jdbc-resource-common" depends="init-common">
+<echo message="asadmin delete-jdbc-resource ${as.props} --target ${appserver.instance.name} ${jdbc.resource.name}"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+        <arg line="delete-jdbc-resource"/>
+        <arg line="${as.props}"/>
+        <arg line="--port ${admin.port}"/>
+        <arg line="--target ${appserver.instance.name}"/>
+        <arg line="${jdbc.resource.name}"/>
+    </exec>
+    <echo message="cmd executed for ${appserver.instance.name}"/>
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to deploy JDBC resources  -->
+<!-- ================================================================ -->
+<target name="deploy-jdbc-common" depends="init-common">
+    <antcall target="create-jdbc-connpool-common" />
+    <antcall target="create-jdbc-resource-common" />
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to undeploy JDBC resources  -->
+<!-- ================================================================ -->
+<target name="undeploy-jdbc-common" depends="init-common">
+  <antcall target="delete-jdbc-resource-common" />
+  <antcall target="delete-jdbc-connpool-common" />
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to create database table through SQL file  -->
+<!-- ================================================================ -->
+<target name="create-sql-common" depends="init-common">
+<echo message="creating tables from ${basedir}/sql/${db.create}" 
+    level="verbose"/>
+  <sql
+    driver="${db.driver}"
+    url="${db.url}"
+    userid="${db.user}"
+    password="${db.pwd}"
+    src="sql/${db.create}"
+    onerror="continue"
+    print="yes"
+    output="${build.classes.dir}/setupDBTables.out"
+    classpath="${compile.classpath}"
+  />
+</target>
+
+<!-- ================================================================ -->
+<!-- Target to delete database table through SQL file  -->
+<!-- ================================================================ -->
+<target name="delete-sql-common" depends="init-common">
+<echo message="dropping tables from ${basedir}/sql/${db.drop}" 
+    level="verbose"/>
+  <sql
+    driver="${db.driver}"
+    url="${db.url}"
+    userid="${db.user}"
+    password="${db.pwd}"
+    src="sql/${db.drop}"
+    onerror="continue"
+    print="yes"
+    output="${build.classes.dir}/setupDBTables.out"
+    classpath="${compile.classpath}"
+  />
+</target>
+
+
+<!-- JMS: create/delete Physical JMS Destination-->
+<target name="create-jms-dest" depends="init-common">
+  <echo message="Creating JMS destination with name ${dest.name}"/>
+  <echo>asadmin create-jmsdest --desttype ${dest.type} ${as.props} ${dest.name}</echo>
+  <exec executable="${ASADMIN}">
+    <arg line="create-jmsdest --desttype ${dest.type} "/>    
+    <arg line="${as.props}"/>
+    <arg line="${dest.name}"/>
+  </exec>
+</target>
+
+<target name="delete-jms-dest" depends="init-common">
+  <echo message="Delete JMS destination with name ${dest.name}"/>
+  <echo>asadmin delete-jmsdest --desttype ${dest.type} ${as.props} ${dest.name}</echo>
+  <exec executable="${ASADMIN}">
+    <arg line="delete-jmsdest --desttype ${dest.type} "/>    
+    <arg line="${as.props}"/>
+    <arg line="${dest.name}"/>
+  </exec>
+</target>
+
+
+
+<!-- deploy the applications in AppServ  -->
+<target name="deploy-common" depends="init-common">  
+<antcall target="deploy-common-pe"/>
+</target>       
+
+<target name="deploy-common-pe" depends="init-common" unless="ee">
+    <echo message="Deploying application of name ${appname}App and ear file ${assemble.dir}/${appname}App.ear " level="verbose"/>
+	<property name="deployed.app" value="${assemble.dir}/${appname}App.ear"/>
+
+	<echo>asadmin deploy ${as.userpass} --host ${admin.host} --port ${admin.port} --target ${appserver.instance.name} --retrieve ${assemble.dir} ${deployed.app}</echo>
+	<exec executable="${ASADMIN}" failonerror="false">
+    <arg line="deploy"/>
+    <arg line="${as.userpass}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--target ${appserver.instance.name}"/>
+    <arg line="--retrieve ${assemble.dir}"/>
+<!-- deployed.app defaults to ${assemble.dir}/${appname}App.ear defined in properties.xml-->
+    <arg line="${deployed.app}"/>
+  </exec>
+  <echo message="Deployment on target server ${appserver.instance.name} 
+successful"/>
+   </target>
+
+
+<!-- deploy the web application in AppServ  -->
+<target name="deploy-jsp-common" depends="init-common">
+  <echo message="Deploying ${deploy.file} from ${basedir}." level="verbose"/>
+  <property name="precompilejsp" value="true"/>
+  <exec executable="${ASADMIN}" failonerror="true">
+    <arg line="deploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--precompilejsp=${precompilejsp}"/>
+    <arg line="--upload true"/>
+    <arg line="--retrieve ${assemble.dir}"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+  </exec>
+</target>    
+
+<!-- deploy the standalone war in AppServ  -->
+<target name="deploy-war-common">
+<antcall target ="deploy-war-commonpe"/>
+</target>
+
+<target name="deploy-war-commonpe" depends="init-common" unless="ee">
+  <echo message="Deploying ${assemble.dir}/${appname}-web.war from ${basedir}." 
+      level="verbose"/>
+  <property name="precompilejsp" value="true"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="deploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--contextroot ${contextroot}"/>
+    <arg line="--precompilejsp=${precompilejsp}"/>
+    <arg line="--upload=true"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+    <arg line="${assemble.dir}/${appname}-web.war"/>
+  </exec>
+</target> 
+
+
+<!-- deploy the standalone jar in AppServ  -->
+<target name="deploy-jar-common" depends="init-common">
+  <echo message="Deploying ${assemble.dir}/${appname}-ejb.jar from ${basedir}." 
+      level="verbose"/>
+  <exec executable="${ASADMIN}" failonerror="true">
+    <arg line="deploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--upload=true"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+    <arg line="${assemble.dir}/${appname}-ejb.jar"/>
+  </exec>
+</target> 
+
+<!-- deploy the standalone jar in AppServ  -->
+<target name="deploy-client-common" depends="init-common">
+  <echo message="Deploying ${assemble.dir}/${appname}-client.jar from ${basedir}." 
+      level="verbose"/>
+  <exec executable="${ASADMIN}" failonerror="true">
+    <arg line="deploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--upload=true"/>
+    <arg line="--retrieve ${assemble.dir}"/>    
+    <arg line="--target ${appserver.instance.name}"/>	
+    <arg line="${assemble.dir}/${appname}-client.jar"/>
+  </exec>
+</target> 
+
+
+<!--  undeploy the applications in AppServ  -->
+<target name="undeploy-common" depends="init-common">
+<property name="deployedapp.name" value="${appname}App"/>
+<echo message="Undeploying application at ${basedir} for ${appname}App" 
+    level="verbose"/>
+  <echo message="Undeploying ${appname}." level="verbose"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="undeploy"/>
+    <arg line="${as.userpass}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+<!-- deployedapp.name defaults to {appname}App.declared in properties.xml-->
+    <arg line="${deployedapp.name}"/>	
+  </exec>
+</target>
+
+<!--  undeploy the standalone war in AppServ  -->
+<target name="undeploy-war-common" depends="init-common">
+    <echo message="Undeploying warfile ${appname}-web from 
+        ${assemble.dir}/${appname}-web.war from ${basedir}." level="verbose"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="undeploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+    <arg line="${appname}-web"/>
+  </exec>
+</target> 
+
+
+<!--  undeploy the standalone war in AppServ  -->
+<target name="undeploy-jar-common" depends="init-common">
+    <echo message="Undeploying jarfile ${appname}-ejb from 
+        ${assemble.dir}/${appname}-ejb.jar from ${basedir}." level="verbose"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="undeploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+    <arg line="${appname}-ejb"/>
+  </exec>
+</target>
+
+<!--  undeploy the standalone client in AppServ  -->
+<target name="undeploy-client-common" depends="init-common">
+    <echo message="Undeploying jarfile ${appname}-client from 
+        ${assemble.dir}/${appname}-ejb.jar from ${basedir}." level="verbose"/>
+  <exec executable="${ASADMIN}" failonerror="false">
+    <arg line="undeploy"/>
+    <arg line="--user ${admin.user}"/>
+    <arg line="--passwordfile ${admin.passwordfile}"/>
+    <arg line="--host ${admin.host}"/>
+    <arg line="--port ${admin.port}"/>
+    <arg line="--target ${appserver.instance.name}"/>	
+    <arg line="${appname}-client"/>
+  </exec>
+</target>  
+
+
+<!-- run appclient in AppServ  -->
+<target name="runclient-common" depends="init-common">
+			
+  <echo message="Executing appclient at Basedir:${basedir}"/>
+  <echo message="Appclient jar: ${assemble.dir}/${appname}AppClient.jar"/>
+  <echo message="Appname: ${appname}"/>
+  <echo message="Display name for appclient: ${appname}Client"/>
+  <echo message="APPCPATH is ${appclient.cpath}"/>
+  <echo message="appclient -client ${assemble.dir}/${appname}AppClient.jar -name ${appname}Client -textauth -user j2ee -password j2ee -xml ${env.S1AS_HOME}/domains/${admin.domain}/config/sun-acc.xml ${appclient.application.args}"/>
+  <property environment="env"/>
+  <exec executable="${APPCLIENT}" failonerror="false">
+    <env key="APPCPATH" value="${appclient.cpath}"/>
+    <!-- arg line="-Dgenericra.inAppClientContainer=true"/ -->
+    <arg line="-client ${assemble.dir}/${appname}AppClient.jar"/>
+    <arg line="-name ${appname}Client"/>
+    <arg line="-textauth"/>
+    <arg line="-user j2ee"/>
+    <arg line="-password j2ee"/>
+    <arg line="-xml ${env.S1AS_HOME}/domains/${admin.domain}/config/sun-acc.xml"/>
+    <arg line="${appclient.application.args}"/>
+  </exec>
+	
+</target>
+		
+<!-- run junit test  -->
+<target name="runjunit-common" depends="init-common">
+	
+	<mkdir dir="${report.dir}/xml"/>	
+	<mkdir dir="${report.dir}/xml/${genericra.raconfig.jmqimpl.friendlyname}-${appserver.friendlyname}-${genericra.raconfig.deliverytype}-${genericra.raconfig.supportsxa.friendlyname}"/>	
+    <junit
+    	fork="yes"
+       	printsummary="on"
+        haltonerror="off"
+        haltonfailure="off">
+        <classpath>
+            <pathelement location="${junit.jar}"/>
+            <pathelement location="${build.classes.dir}"/>
+        </classpath>
+        <batchtest 
+        	haltonfailure="no" 
+        	haltonerror="no" 
+        	todir="${report.dir}/xml/${genericra.raconfig.jmqimpl.friendlyname}-${appserver.friendlyname}-${genericra.raconfig.deliverytype}-${genericra.raconfig.supportsxa.friendlyname}">
+        	<fileset dir="${build.classes.dir}">
+            	<include name="**/Test*.class"/>
+            </fileset>
+        	<formatter type="xml"/>
+        </batchtest>
+    	<sysproperty key="testDirectory" value="${basedir}"/>
+	</junit>
+	
+</target>	
+	
+<target name="runjunitreport-common" depends="init-common">
+	
+	<mkdir dir="${report.dir}/html"/>	
+	<mkdir dir="${report.dir}/html/${genericra.raconfig.jmqimpl.friendlyname}-${appserver.friendlyname}-${genericra.raconfig.deliverytype}-${genericra.raconfig.supportsxa.friendlyname}"/>	
+
+	<junitreport todir="${report.dir}/xml/${genericra.raconfig.jmqimpl.friendlyname}-${appserver.friendlyname}-${genericra.raconfig.deliverytype}-${genericra.raconfig.supportsxa.friendlyname}">
+    	<fileset dir="${report.dir}/xml/${genericra.raconfig.jmqimpl.friendlyname}-${appserver.friendlyname}-${genericra.raconfig.deliverytype}-${genericra.raconfig.supportsxa.friendlyname}">
+                <include name="TEST-*.xml" />
+        </fileset>
+        <report format="frames" todir="${report.dir}/html/${genericra.raconfig.jmqimpl.friendlyname}-${appserver.friendlyname}-${genericra.raconfig.deliverytype}-${genericra.raconfig.supportsxa.friendlyname}" />
+    </junitreport>
+
+</target>
+
+<!-- prepare Pointbase servers -->
+<target name="preparePB" depends="init-common">
+  <echo message="Starting Pointbase servers" level="verbose"/>
+  <copy file="${env.APS_HOME}/lib/pointbase.ini" 
+      tofile="${db.dir}/pointbase.ini"/>
+  <replace file="${db.dir}/pointbase.ini" token="@@@" value="${db.dir}"/>
+</target>
+
+<!-- start/stop Pointbase servers -->
+<target name="startPB" depends="preparePB">
+  <parallel>
+    <java classname="com.pointbase.net.netServer" 
+        classpath="${db.classpath}" failonerror="false" fork="true">
+      <arg line="/port:9092"/>
+      <arg line="/pointbase.ini=${db.dir}/pointbase.ini"/>
+    </java>
+    <java classname="com.pointbase.net.netServer" 
+        classpath="${db.classpath}" failonerror="true" fork="true">
+      <arg line="/port:9093"/>
+      <arg line="/pointbase.ini=${db.dir}/pointbase.ini"/>
+    </java>
+  </parallel>
+</target>
+
+<target name="stopPB" depends="init-common">
+  <parallel>
+    <java classname="isql.ISQL" 
+          classpath="${db.classpath}:${env.APS_HOME}/lib/isql.jar" 
+          failonerror="false" fork="true">
+      <arg line="jdbc:pointbase:server://localhost:9092/sqe-samples,new"/>
+      <arg line="${db.user}"/>
+      <arg line="${db.pwd}"/>
+      <arg line="${db.driver}"/>
+      <arg line="${env.APS_HOME}/shutdownPbs.sql"/>
+    </java>
+    <java classname="isql.ISQL" 
+          classpath="${db.classpath}:${env.APS_HOME}/lib/isql.jar" 
+          failonerror="false" fork="true">
+      <arg line="jdbc:pointbase:server://localhost:9093/sun-appserv-samples,new"/>
+      <arg line="${db.user}"/>
+      <arg line="${db.pwd}"/>
+      <arg line="${db.driver}"/>
+      <arg line="${env.APS_HOME}/shutdownPbs.sql"/>
+    </java>
+  </parallel>
+</target>
+
+
+<!--
+
+<target name="usage-common">
+    <echo>         
+        ant clean           Remove all classes files
+        ant build           Build the application
+        ant deploy          Deploy the ear files to S1AS
+        ant run	            Run the application
+        ant undeploy        Undeploy the ear files from S1AS
+        ant usage           Display this message            
+    </echo>
+</target>
+-->
+
+</project>

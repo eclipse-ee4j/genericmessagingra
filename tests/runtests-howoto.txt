@@ -1,0 +1,86 @@
+HOWTO: runs tests for the Generic Resource Adapter for JMS with Sun Java System Application Server 8.1 UR1 and above.
+---------------------------------------------------------------------
+
+Initial Setup
+--------------
+
+1. Install application server
+
+Download and install the version of Glassfish/Sun Java System Application Server that you wish to test with
+
+These tests have been run with Glassfish 2.1.1, Glassfish 3.0.1, Glassfish 3.1
+
+2. Install Ant
+
+Download and install Ant (I used 1.7.1), and add its bin directory to your path 
+
+Download ant-contrib from http://ant-contrib.sourceforge.net/ to your machine
+and copy the jar (I used ant-contrib-1.0b3.jar) to the lib directory of your ant installation
+
+3. Set Environment variables
+
+Set RA_HOME to the directory where the genericjmsra workspace is checked out
+Set S1AS_HOME to your application server installation directory
+Add S1AS_HOME/bin to your PATH.
+Add <Ant Home>/bin to your PATH (as mentioned above)
+
+4. Review config files
+
+Review $RA_HOME/config/config.properties to see if any adjustments are needed (server ports etc)
+
+Setup for running tests in Glassfish MQ
+----------------------------------------------------------
+
+Glassfish 2.x: nothing to do
+
+Glassfish 3.x: Copy imq.jar, imqutil.jar, imqjmx.jar, and imqbroker.jar from glassfish/mq/lib to glassfish/lib
+
+
+To run all tests
+----------------
+
+1. Perform the steps outlined in the "Initial Setup" section above.
+
+2. Start the application server
+
+3. cd $RA_HOME/tests and type in 
+	  ant all
+   The "all" target deploys and configures the resource adapter, runs all the tests, 
+   and undeploys the resource adapter.
+
+4. The test run results are also placed at $RA_HOME/tests/genericratests.output.
+
+To run an individual test
+------------------------
+
+1. Perform the steps outlined in the "Initial Setup" section above.
+
+2. Start the application server
+
+3. cd $RA_HOME/tests and type in 
+	 ant gmq async xa setup 
+	 (to deploy the GenericJMSRA RA in Glassfish to use Glassfish MQ with DeliveryType=Asynchronous) 
+	 or
+	 ant wljms sync noxa setup (to deploy the GenericJMSRA RA in Glassfish to use WebLogic JMS with DeliveryType=Synchronous) 
+	 
+	
+4  cd $RA_HOME/tests/<the-test-you-want-to-run> and type in 
+      ant gmq async all 
+      
+   if you prefer you can run each stage of the test separately: the tasks are
+      ant gmq build
+      ant gmq xa setup
+      ant deploy
+      ant run
+      ant undeploy
+      ant unsetup
+      
+5. After you have run the tests you want to run, cd $RA_HOME/tests and type in 
+	 ant unsetup
+
+Problems/Issues
+---------------
+Please use the mailing lists and forums of the Generic RA for JMS project at
+java.net for all your questions/comments.
+https://genericjmsra.dev.java.net/servlets/ProjectMailingListList
+

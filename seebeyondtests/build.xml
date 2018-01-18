@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE project [ <!ENTITY commonSetup SYSTEM "file:../config/properties.xml"> <!ENTITY commonBuild SYSTEM "file:../config/common.xml"> ]>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<project name="genericratests" default="usage" basedir=".">
+
+    &commonSetup;
+    &commonBuild;
+
+    <target name="all" depends="init-common">
+		<antcall target="setup"/>
+		<antcall target="run-all-tests">
+			<param name="test-target" value="all" />
+		</antcall>
+		<antcall target="unsetup"/>
+	</target>
+
+	<target name="setup" depends="init-common">
+		<!-- create RA config. By default configured against SJSMQ -->
+		<antcall target="create-resource-adapter-config-common">
+			<param name="raconfig.property" value="SupportsXA=true:ProviderIntegrationMode=jndi:JndiProperties=java.naming.factory.initial\=com.sun.jndi.fscontext.RefFSContextFactory,java.naming.provider.url\=file\:\/wksp\/SB:LogLevel=info:UserName=Administrator:Password=STC:RMPolicy=OnePerPhysicalConnection"/>
+			<param name="raname" value="genericra" />
+		</antcall>
+		<!-- deploy RA -->
+		<antcall target="deploy-rar-common"/>
+	</target>
+	
+	<target name="unsetup" depends="init-common">
+		<antcall target="delete-resource-adapter-config-common">
+			<param name="raname" value="genericra" />
+		</antcall>
+		<antcall target="undeploy-rar-common">
+			<param name="undeployrar" value="genericra" />
+		</antcall>
+	</target>
+
+	<target name="run-all-tests" depends="init-common">
+		<record name="genericratests.output" action="start" />
+		<echo message="@@## Generic RA tests ##@@" />
+		<echo message="@@## Stress.lookup ##@@" />
+		<ant dir="stress.lookup" target="${test-target}" />
+		<echo message="@@## Stress.dmq ##@@" />
+		<ant dir="stress.dmq" target="${test-target}" />
+		<echo message="@@## Stress.topic ##@@" />
+		<ant dir="stress.topic" target="${test-target}" />
+		<echo message="@@## Stress.topic.clientId ##@@" />
+		<ant dir="stress.topic.clientId" target="${test-target}" />
+		<record name="connector.output" action="stop" />
+	</target>
+
+	<target name="clean" depends="init-common">
+		<antcall target="clean-common" />
+	</target>
+
+	<target name="usage">
+		<antcall target="usage-common" />
+	</target>
+</project>

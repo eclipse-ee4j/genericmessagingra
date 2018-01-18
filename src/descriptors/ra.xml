@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<connector xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+    http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
+    version="1.5">
+    
+    <description>Generic JMS Resource Adapter</description>
+    <display-name>Generic J2EE Resource Adapter for JMS</display-name>
+    <icon></icon>
+    <vendor-name>Sun Microsystems, Inc.</vendor-name>
+    <eis-type>Java Message Service v 1.1</eis-type>
+    <resourceadapter-version>2.0.1</resourceadapter-version>
+    <license> 
+        <description>Licensed</description> 
+        <license-required>false</license-required> 
+    </license>
+    <resourceadapter>
+        <resourceadapter-class>
+            com.sun.genericra.GenericJMSRA
+        </resourceadapter-class>
+        <config-property>
+            <config-property-name>UserName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>Password</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>ProviderIntegrationMode</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>ConnectionFactoryClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>QueueConnectionFactoryClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>               
+        <config-property>
+            <config-property-name>TopicConnectionFactoryClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>XAConnectionFactoryClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>XAQueueConnectionFactoryClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>XATopicConnectionFactoryClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>UnifiedDestinationClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>TopicClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>QueueClassName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>SupportsXA</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>ConnectionFactoryProperties</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>JndiProperties</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>CommonSetterMethodName</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>          
+        <config-property>
+            <config-property-name>RMPolicy</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>                
+        <config-property>
+            <config-property-name>LogLevel</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>  
+        <config-property>
+            <config-property-name>DeliveryType</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property>         
+        <config-property>
+            <config-property-name>UseFirstXAForRedelivery</config-property-name>
+            <config-property-type>java.lang.String</config-property-type>
+        </config-property> 
+        
+        <!-- @todo: check if all MCF props are listed correctly -->
+        <outbound-resourceadapter>
+            <connection-definition>
+                <managedconnectionfactory-class>
+                    com.sun.genericra.outbound.ManagedQueueConnectionFactory
+                </managedconnectionfactory-class>
+                <config-property>
+                    <config-property-name>ConnectionFactoryJndiName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>                
+                <config-property>
+                    <config-property-name>ClientId</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>                
+                <config-property>
+                    <config-property-name>ConnectionValidationEnabled</config-property-name>
+                    <config-property-type>java.lang.Boolean</config-property-type>
+                </config-property>                
+                
+                <connectionfactory-interface> 
+                    javax.jms.QueueConnectionFactory
+                </connectionfactory-interface>
+                <connectionfactory-impl-class>
+                    com.sun.genericra.outbound.ConnectionFactory
+                </connectionfactory-impl-class>
+                <connection-interface> 
+                    javax.jms.QueueConnection
+                </connection-interface>
+                <connection-impl-class>
+                    com.sun.genericra.outbound.ConnectionHandle
+                </connection-impl-class>
+            </connection-definition>
+            
+            <connection-definition>
+                <managedconnectionfactory-class>
+                    com.sun.genericra.outbound.ManagedTopicConnectionFactory
+                </managedconnectionfactory-class>
+                <config-property>
+                    <config-property-name>ConnectionFactoryJndiName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>                
+                <config-property>
+                    <config-property-name>ClientId</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>                
+                <config-property>
+                    <config-property-name>ConnectionValidationEnabled</config-property-name>
+                    <config-property-type>java.lang.Boolean</config-property-type>
+                </config-property>                
+                
+                <connectionfactory-interface> 
+                    javax.jms.TopicConnectionFactory
+                </connectionfactory-interface>
+                <connectionfactory-impl-class>
+                    com.sun.genericra.outbound.ConnectionFactory
+                </connectionfactory-impl-class>
+                <connection-interface> 
+                    javax.jms.TopicConnection
+                </connection-interface>
+                <connection-impl-class>
+                    com.sun.genericra.outbound.ConnectionHandle
+                </connection-impl-class>
+            </connection-definition>
+            
+            <connection-definition>
+                <managedconnectionfactory-class>
+                    com.sun.genericra.outbound.ManagedJMSConnectionFactory
+                </managedconnectionfactory-class>
+                <config-property>
+                    <config-property-name>ConnectionFactoryJndiName</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>                
+                <config-property>
+                    <config-property-name>ClientId</config-property-name>
+                    <config-property-type>java.lang.String</config-property-type>
+                </config-property>                
+                <config-property>
+                    <config-property-name>ConnectionValidationEnabled</config-property-name>
+                    <config-property-type>java.lang.Boolean</config-property-type>
+                </config-property>                
+                
+                <connectionfactory-interface> 
+                    javax.jms.ConnectionFactory
+                </connectionfactory-interface>
+                <connectionfactory-impl-class>
+                    com.sun.genericra.outbound.ConnectionFactory
+                </connectionfactory-impl-class>
+                <connection-interface> 
+                    javax.jms.Connection
+                </connection-interface>
+                <connection-impl-class>
+                    com.sun.genericra.outbound.ConnectionHandle
+                </connection-impl-class>
+            </connection-definition>
+            
+            <transaction-support>
+                XATransaction
+            </transaction-support>
+            <authentication-mechanism>
+                <authentication-mechanism-type>
+                    BasicPassword
+                </authentication-mechanism-type>
+                <credential-interface>
+                    javax.resource.spi.security.PasswordCredential
+                </credential-interface>
+            </authentication-mechanism>
+            <reauthentication-support>
+                false
+            </reauthentication-support>
+        </outbound-resourceadapter>
+        
+        <inbound-resourceadapter>
+            <messageadapter>          
+                <messagelistener>
+                    <messagelistener-type>
+                        javax.jms.MessageListener
+                    </messagelistener-type>
+                    <activationspec>
+                        <activationspec-class>
+                            com.sun.genericra.inbound.ActivationSpec
+                        </activationspec-class> 
+                    </activationspec>
+                </messagelistener>
+            </messageadapter>          
+        </inbound-resourceadapter>
+        
+        <adminobject>
+            <adminobject-interface>javax.jms.Queue
+            </adminobject-interface>
+            <adminobject-class>
+                com.sun.genericra.outbound.QueueProxy
+            </adminobject-class>
+            <config-property>
+                <config-property-name>
+                    DestinationJndiName
+                </config-property-name>
+                <config-property-type>
+                    java.lang.String
+                </config-property-type>
+                <config-property-value>
+                </config-property-value>
+            </config-property>
+            <config-property>
+                <config-property-name>
+                    DestinationProperties
+                </config-property-name>
+                <config-property-type>
+                    java.lang.String
+                </config-property-type>
+                <config-property-value>
+                </config-property-value>
+            </config-property>
+        </adminobject>
+        <adminobject>
+            <adminobject-interface>
+                javax.jms.Topic
+            </adminobject-interface>
+            <adminobject-class>
+                com.sun.genericra.outbound.TopicProxy
+            </adminobject-class>
+            <config-property>
+                <config-property-name>
+                    DestinationJndiName
+                </config-property-name>
+                <config-property-type>
+                    java.lang.String
+                </config-property-type>
+                <config-property-value>
+                </config-property-value>
+            </config-property>
+            <config-property>
+                <config-property-name>
+                    DestinationProperties
+                </config-property-name>
+                <config-property-type>
+                    java.lang.String
+                </config-property-type>
+                <config-property-value>
+                </config-property-value>
+            </config-property>
+        </adminobject>
+    </resourceadapter>
+</connector>
+

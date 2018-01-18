@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ejb-jar PUBLIC '-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN' 'http://java.sun.com/dtd/ejb-jar_2_0.dtd'>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<ejb-jar>
+  <display-name>SimpleMessageJAR</display-name>
+  <enterprise-beans>
+    <message-driven>
+      <display-name>SimpleMessageEJB</display-name>
+      <ejb-name>SimpleMessageEJB</ejb-name>
+      <ejb-class>test.stress.topic.nondurable.ejb.SimpleMessageBean</ejb-class>
+      <transaction-type>Container</transaction-type>
+      <message-driven-destination>
+        <destination-type>javax.jms.Topic</destination-type>
+      </message-driven-destination>
+      <resource-ref>
+        <res-ref-name>jms/TCFactory</res-ref-name>
+        <res-type>javax.jms.TopicConnectionFactory</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+      </resource-ref>
+      <resource-ref>
+        <res-ref-name>jms/QCFactory</res-ref-name>
+        <res-type>javax.jms.QueueConnectionFactory</res-type>
+        <res-auth>Container</res-auth>
+        <res-sharing-scope>Shareable</res-sharing-scope>
+      </resource-ref>
+      <resource-env-ref>
+        <resource-env-ref-name>jms/outboundQueue</resource-env-ref-name>
+	    <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+      </resource-env-ref>
+    </message-driven>
+  </enterprise-beans>
+  <assembly-descriptor>
+    <container-transaction>
+      <method>
+        <ejb-name>SimpleMessageEJB</ejb-name>
+        <method-name>onMessage</method-name>
+        <method-params>
+          <method-param>javax.jms.Message</method-param>
+        </method-params>
+      </method>
+      <trans-attribute>@ejb-jar.assembly-descriptor.container-transaction.trans-attribute@</trans-attribute>
+    </container-transaction>
+  </assembly-descriptor>
+</ejb-jar>
+
+

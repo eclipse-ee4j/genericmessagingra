@@ -1,0 +1,736 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--
+
+    Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<html>
+<head>
+  <meta http-equiv="content-type"
+ content="text/html; charset=ISO-8859-1">
+  <title>Integrating Sun Java System Application Server with Tibco JMS
+using the Generic Resource Adapter for JMS</title>
+  <meta name="author" content="Sivakumar Thyagarajan - Sun Microsystems">
+  <meta name="description"
+ content="Integrating Sun Java System Application Server with Tibco JMS using the Generic Resource Adapter for JMS">
+</head>
+<body>
+<h3 style="font-family: times new roman,times,serif;">Integrating Sun
+Java System Application Server with Tibco EMS using the Generic Resource
+Adapter for JMS</h3>
+<big style="font-weight: bold; text-decoration: underline;"><big><br>
+</big></big>
+<div style="text-align: left;"><span style="font-style: italic;">Last
+updated :&nbsp; </span>28th April 2005<br style="font-style: italic;">
+<span style="font-style: italic;">Author : Narayanan.V, Sivakumar
+Thyagarajan, Binod PG.</span><span style="font-style: italic;"><br>
+version : </span>0.9<br>
+</div>
+<span style="font-style: italic;">Abstract :</span> <span
+ style="font-weight: bold;">This document provides step-by-step
+instructions on how to use the Generic Resource Adapter for JMS to
+integrate Tibco EMS with Sun Java System Application Server.</span><span
+ style="font-weight: bold;"><br>
+</span><br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">This document
+serves as a guide to configuring a sample application to work with the
+Tibco JMS provider, using the Generic Resource Adapter for JMS as an
+integration mechanism between the application server and the message
+provider. The sample application discussed in this document leverages
+both inbound and outbound communication to the JMS provider enabled by
+the resource adapter and also simulates distributed transactions [XA]
+in an MDB by persisting messages to a relational database. </span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<h4 style="font-family: times new roman,times,serif;">Sample Application</h4>
+<span style="font-family: times new roman,times,serif;">An application
+client, supplies order details to a session bean deployed in the
+application server. The session bean sends these order details to a
+queue, using the outbound capabilities provided by the Generic Resource
+Adapter. A Message Drive Bean, deployed in the application server and
+configured to use the Generic Resource Adapter to work with Tibco,
+asynchronously consumes messages from this queue, and processes the
+order. The CMT Message Driven Bean then persists the processed Order
+information to a relation datastore to simulate a distributed
+transaction.</span><br style="font-family: times new roman,times,serif;">
+<br>
+<div style="text-align: center;"><img
+ src="Integrating_Sun_Java_System_Application_Server_with_Tibco_JMS_using_the_Generic_Resource_Adapter_for_JMS.jpg"
+ title="" alt="Schematic diagram" style="width: 516px; height: 278px;"
+ align="top"><br style="font-family: times new roman,times,serif;">
+</div>
+<span style="font-family: times new roman,times,serif;"><br>
+The following steps describes how the Generic Resource adapter is
+deployed and configured in Sun Java System Application Server 8.1
+2005Q1 UR1 to use Tibco EMS. Connector resources can be configured via
+both the asadmin GUI and CLI in SJSAS. This document, however uses the
+CLI to demonstrate all operations. <br>
+<br>
+The sample application is available off the main distribution under the
+samples/tibcosample</span><span
+ style="font-family: times new roman,times,serif;"> directory. To
+configure the resource adapter and set up resources and deploy the
+sample application, use the ant&nbsp; "deploy" target. The "undeploy"
+target available under the directory, would delete the resources and
+undeploy the sample application.</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Resource
+Adapter Deployment/Configuration</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Initial
+Setup</span><br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">The following
+permissions need to be added to the server.policy and the client.policy
+file to deploy the generic resource adapter and to run the client
+application.</span><br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<ul style="font-family: times new roman,times,serif;">
+  <li>Edit the server.policy file in the
+[${install}/domains/domain1/config/] directory and add the following
+line to it.<span style="font-style: italic;"></span></li>
+</ul>
+<span
+ style="font-style: italic; font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; permission
+java.util.logging.LoggingPermission "control";</span>
+<ul style="font-family: times new roman,times,serif;">
+  <li>In the event of using an application client, edit the
+client.policy file in the [${install}/lib/appclient/client.policy]
+directory and add the following line to it.</li>
+</ul>
+<span
+ style="font-style: italic; font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; permission
+javax.security.auth.PrivateCredentialPermission
+"javax.resource.spi.security.PasswordCredential * \"*\"","read";</span>
+<ul style="font-family: times new roman,times,serif;">
+  <li>Copy the tibjms.jar and tibjmsapps.jar files that come with Tibco
+EMS to the [${appserver-install-dir}/domains/domain1/lib/classes]
+directory. Modify the domain's classpath to add these jars. The asadmin
+GUI could be used to modify a domain's classpath. Go to Application
+Server -&gt; JVM Settings -&gt; Path Settings . Add an entry in the
+classpath suffix for these jar files. Restart the domain for these
+changes to take effect. </li>
+</ul>
+	<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Configuring
+the Resource Adapter</span><br
+ style="font-family: times new roman,times,serif;">
+<ul style="font-family: times new roman,times,serif;">
+  <li>Add ${appserver-install-dir}/bin to your PATH. The asadmin CLI
+command can be found at ${appserver-install-dir}/bin. In SJSAS, resource
+adapter configuration is done prior to its deployment. Use the following
+command to create a resource adapter configuration for genericra, to
+configure it to work with Tibco EMS. </li>
+</ul>
+<div
+ style="margin-left: 80px; font-style: italic; font-family: times new roman,times,serif;">asadmin
+create-resource-adapter-config --user &lt;adminname&gt; --password
+&lt;admin password&gt; --property
+SupportsXA=true:ProviderIntegrationMode=jndi:UserName=admin:Password=###:<br>
+JndiProperties=java.naming.factory.url.pkgs\\=com.tibco.tibjms.naming,java.naming.factory.initial\\=com.tibco.tibjms.naming.TibjmsInitialContextFactory,java.naming.provider.url\\=localhost\\:7222:LogLevel=finest
+genericra<br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">A
+brief description of the various properties used in the above command is
+explained below:<br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;"><span
+ style="font-style: italic;">SupportsXA</span><br>
+Set the supports distributed transactions attribute to true. The level
+of transactional support the adapter provides -- none, local, or XA --
+depends on the capabilities of the EIS being adapted. If an adapter
+supports XA transactions and this attribute is XA, the application can
+use distributed transactions to coordinate the EIS resource with JDBC
+and JMS resources.<br>
+<br>
+<span style="font-style: italic;">ProviderIntegrationMode</span><br>
+Set the integration mode as JNDI. Two integration modes exist in the
+Generic Resource Adapter for JMS. The JNDI mode allows the resource
+adapter to use the administered objects published in the message
+provider's JNDI provider to integrate with the message provider.<br>
+<br>
+<span style="font-style: italic;">Username and Password</span><br>
+Message provider specific user credentials. [In this case, modify this
+attribute to reflect the Tibco username/password]<br>
+<br>
+Set the provider url depending on where the TIBCO server is installed.
+In this example above, the url has been set to point to "localhost"
+since the tibco server is also installed on the same machine. <br>
+<br>
+</div>
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Deploying
+the Resource adapter</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<ul style="font-family: times new roman,times,serif;">
+  <li>The Resource adapter is then deployed using the asadmin deploy
+command, as shown below.</li>
+</ul>
+<div
+ style="margin-left: 80px; font-family: times new roman,times,serif;"><span
+ style="font-style: italic;">asadmin deploy --user admin --password
+adminadmin &lt;location of the generic resource adapter rar file&gt;</span><br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Configuring
+Tibco EMS administered objects using the Tibco administration console.</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">The following
+steps assumes a successful installation of Tibco EMS.</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<ul style="font-family: times new roman,times,serif;">
+  <li>Start the tibco server using the following command.</li>
+</ul>
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;"><span
+ style="font-style: italic;">tibemsd
+[${tibco-install-dir}/ems/bin/tibemsd]</span><br>
+</div>
+<ul style="font-family: times new roman,times,serif;">
+  <li>Start the tibco admin console</li>
+</ul>
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;"> <span
+ style="font-style: italic;">tibemsadmin
+[${tibco-install-dir}/ems/bin/tibemsadmin]</span><br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">In
+the tibco admin console use the following commands to create the
+connection factory and the queue<br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">&gt;connect
+(This connects the admin console to the server)<br>
+&gt;create queue &lt;JNDI Name to be given to the queue&gt;<br>
+e.g create queue jms/TQueue<br>
+&gt;create factory &lt;Queue Connection Factory Name&gt; xaqueue
+url=tcp:/${host}/7222<br>
+e.g. create factory XAQCF xaqueue url=tcp:/foo/7222<br>
+<br>
+</div>
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Creating
+Connection Factories and Administered Objects in SJSAS</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">In order to
+configure a JMS Connection Factory, using the Generic Resource Adapter
+for JMS, a Connector connection pool and resource needs to be created in
+the application server, as shown below. </span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">#Creates
+a Connection Pool called mypool and points to XAQCF created in Tibco<br>
+<span style="font-style: italic;">asadmin
+create-connector-connection-pool -- raname genericra
+connectiondefinition javax.jms.ConnectionFactory --property
+ConnectionFactoryJndiName=XAQCF mypool</span><br>
+<br>
+#Creates a connector resource named jms/ConnectionFactory and binds
+this resource to JNDI for applications to use.<br>
+<span style="font-style: italic;">asadmin create-connector-resource
+--poolname mypool jms/ConnectionFactory</span><br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">For JMS
+Destination Resources, an administered object needs to be created.</span><br
+ style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">#Creates
+a javax.jms.Queue Administered Object and binds it to JNDI at jms/Queue
+and points to jms/TQueue created in Tibco.<br>
+<span style="font-style: italic;">asadmin create-admin-object --raname
+genericra --restype javax.jms.Queue --property
+DestinationJndiName=jms/TQueue jms/Queue</span><br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Deployment
+descriptors for the sample application</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">MyConnectionFactory
+and QueueName are coded names that will be mapped to the resource
+references jms/ConnectionFactory and jms/Queue. This will be clear from
+the deploment descriptor of the publisher bean.</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;resource-ref&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;res-ref-name&gt;jms/MyConnectionFactory&lt;/res-ref-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;res-type&gt;javax.jms.ConnectionFactory&lt;/res-type&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;res-auth&gt;Container&lt;/res-auth&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;res-sharing-scope&gt;Shareable&lt;/res-sharing-scope&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;/resource-ref&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">The deployment
+descriptors need to take into account the resource adapter and the
+connection resources that have been created. A sample sun-ejb-jar.xml is
+given below.</span><br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;?xml
+version="1.0" encoding="UTF-8"?&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;!DOCTYPE
+sun-ejb-jar PUBLIC '-//Sun Microsystems, Inc.//DTD Sun ONE Application
+Server 7.0 EJB 2.0//EN'
+'http://www.sun.com/software/sunone/appserver/dtds/sun-ejb-jar_2_0-0.dtd'&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;!--
+Copyright 2002 Sun Microsystems, Inc. All rights reserved. --&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;sun-ejb-jar&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;enterprise-beans&gt; </span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;unique-id&gt;1&lt;/unique-id&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;</span><span
+ style="font-family: times new roman,times,serif;">&lt;ejb&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;ejb-name&gt;SimpleMessageEJB&lt;/ejb-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;jndi-name&gt;jms/SampleQueue&lt;/jndi-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;resource-ref&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;res-ref-name&gt;jms/QCFactory&lt;/res-ref-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;jndi-name&gt;jms/QCFactory&lt;/jndi-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;default-resource-principal&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;name&gt;guest&lt;/name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;password&gt;guest&lt;/password&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/default-resource-principal&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/resource-ref&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;resource-env-ref&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;resource-env-ref-name&gt;jms/clientQueue&lt;/resource-env-ref-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;jndi-name&gt;jms/clientQueue&lt;/jndi-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/resource-env-ref&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;mdb-connection-factory&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;jndi-name&gt;jms/QCFactory&lt;/jndi-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;/mdb-connection-factory&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;mdb-resource-adapter&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;!-- resource-adapter-mid
+points to the Generic Resource Adapter for JMS --&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;resource-adapter-mid&gt;genericra&lt;/resource-adapter-mid&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;activation-config&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;DestinationType&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;javax.jms.Queue&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-name&gt;DestinationProperties&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-value&gt;imqDestinationName=Queue&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-name&gt;MaxPoolSize&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-value&gt;32&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-name&gt;RedeliveryAttempts&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;0&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;ReconnectAttempts&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;4&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
+&nbsp;&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-name&gt;ReconnectInterval&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;10&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-name&gt;RedeliveryInterval&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;1&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;SendBadMessagesToDMD&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-value&gt;true&lt;/activation-config-property-value&gt;&nbsp;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;DeadMessageDestinationClassName&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-value&gt;com.sun.messaging.Queue&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&lt;activation-config-property-name&gt;DeadMessageDestinationProperties&lt;/activation-config-property-name&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;activation-config-property-value&gt;imqDestinationName=DMDtest&lt;/activation-config-property-value&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config-property&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </span><span
+ style="font-family: times new roman,times,serif;">&lt;/activation-config&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;</span><span
+ style="font-family: times new roman,times,serif;">&lt;/mdb-resource-adapter&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;</span><span
+ style="font-family: times new roman,times,serif;">&lt;/ejb&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;</span><span
+ style="font-family: times new roman,times,serif;">&lt;/enterprise-beans&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&lt;/sun-ejb-jar&gt;</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">A sample of the
+lookup done for the Connection factories and creating the session is
+given below.</span><br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">Context context
+= null;</span><br style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">ConnectionFactory
+connectionFactory = null;</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">logger.info("In
+PublisherBean.ejbCreate()");</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">try {</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+context = new InitialContext();</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+queue = (javax.jms.Queue) context.lookup
+("java:comp/env/jms/QueueName");</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+connectionFactory = (ConnectionFactory) context.lookup(</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+"java:comp/env/jms/MyConnectionFactory");</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+connection = connectionFactory.createConnection();</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">} catch
+(Throwable t) {</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;
+logger.severe("PublisherBean.ejbCreate:" + "Exception: " +</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">&nbsp;&nbsp;&nbsp;</span><span
+ style="font-family: times new roman,times,serif;">t.toString());</span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">}</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Creating
+JDBC resources </span><br
+ style="font-family: times new roman,times,serif;">
+<span style="font-family: times new roman,times,serif;">The MDB in the
+sample application persists the orders from the JMS Message into a
+relational data store. This sample uses the bundled pointbase with the
+application server. A JDBC connection pool and resource is created for
+the application to use, using the commands below.</span><br
+ style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">#creates
+a jdbc pool named mypool1<br>
+<span style="font-style: italic;">asadmin create-jdbc-connection-pool
+--user admin --password adminadmin --host localhost --port 4848
+--datasourceclassname com.pointbase.jdbc.jdbcDataSource --restype
+javax.sql.DataSource --validationmethod auto-commit --property
+DatabaseName=jdbc:pointbase:server://localhost:9092/sample:user=pbpublic:password=pbpublic
+mypool1</span><br style="font-style: italic;">
+<br>
+#Creates a JDBC resource called jdbc/ejbTutorialDB<br>
+<span style="font-style: italic;">asadmin create-jdbc-resource
+--connectionpoolid mypool1 jdbc/ejbTutorialDB</span><br>
+</div>
+<br style="font-family: times new roman,times,serif;">
+<br style="font-family: times new roman,times,serif;">
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Pointbase
+- creating tables and starting the pointbase server</span><br
+ style="font-family: times new roman,times,serif;">
+<ul style="font-family: times new roman,times,serif;">
+  <li>Creating the table in the pointbase database</li>
+</ul>
+<div
+ style="margin-left: 40px; font-family: times new roman,times,serif;">The
+following steps start the pointbase server.<br>
+<ul>
+  <li>cd {appserver-install-dir}/pointbase/tools/serveroption/</li>
+  <li>./startconsole.sh [The default username and the password is
+pbpublic and pbpublic.]</li>
+  <li>Choose the script in the sample and create the database table.<br>
+  </li>
+</ul>
+</div>
+<ul style="font-family: times new roman,times,serif;">
+  <li>Starting the pointbase server</li>
+  <ul>
+    <li>The pointbase database can be started by running<span
+ style="font-style: italic;"></span></li>
+    <ul>
+      <li><span style="font-style: italic;">{appserver-install-dir}/pointbase/tools/serveroption/startserver.sh</span><br>
+      </li>
+    </ul>
+  </ul>
+</ul>
+<span
+ style="font-weight: bold; font-family: times new roman,times,serif;">Executing
+the sample application<br>
+</span>- Test the application by using the bundled web application to
+create an order and view the order lines persisted in the database.
+</body>
+</html>

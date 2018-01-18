@@ -1,0 +1,117 @@
+HOWTO: runs tests for the Generic Resource Adapter for JMS with Sun Java System Application Server 8.1 UR1 and above.
+---------------------------------------------------------------------
+
+Initial Setup
+-------------
+
+1. Download and install Sun Java System Application Server Platform Edition 8.1 2005Q1 UR1 or above 
+from http://java.sun.com/j2ee/1.4/download.html#sdk
+
+2. Environment settings
+a. Set RA_HOME to the directory where the genericjmsra workspace is checkedout
+   Set S1AS_HOME to your application server installation directory
+b. Modify $RA_HOME/config/config.properties based on your configuration. 
+c. Add S1AS_HOME/bin to your PATH.
+
+Security Permissions
+--------------------
+
+1. $S1AS_HOME/domains/domain1/config/server.policy should have 
+
+   permission java.util.logging.LoggingPermission "control";
+
+   so that generic RA can use the J2SE logging capabilities.
+
+2. $S1AS_HOME/lib/appclient/client.policy should have
+   
+   permission javax.security.auth.PrivateCredentialPermission "javax.resource.spi.security.PasswordCredential * \"*\"","read";
+
+   so that SecurityCredentials can be read by appclient.
+
+
+Specifying JMS client library of the Provider.
+----------------------------------------------
+
+1. Add JMS provider's client library (stcjms.jar) to the classpath
+   of application server by editing domain.xml
+
+2. APPCPATH is the environment variable from where the appclient script
+   take the application specific jar files. Both genericra jar file (genericra.jar)
+   and JMS provider specific client library (for seebeyond, it is stcjms.jar)
+   should be specified in this environment variable.
+   For this test suite, ant scripts form APPCPATH from "appclient.cpath" 
+   variable in $RA_HOME/config/config.properties. So, please add JMS client library
+   jar file (stcjms.jar) to this variable.
+
+
+Creating JMSAdministered Objects in JMS provider for the tests.
+---------------------------------------------
+
+[This step involves only seebeyond specific information]
+
+The test depend on the following JMS administered objects.
+I used JNDIRegister tool to create these. There may be better ways of creating them.
+
+Queues: jndi-myqueue, jndi-myqueue1
+Topics: jndi-mytopic, jndi-mytopic1, jndi-mydurabletopic
+
+XAQueueConnectionFactories : jndi-XAQCF1,
+XATopicConnectionFactories : jndi-XATCF1,
+TopicConnectionFactories : jndi-TCF1,
+QueueConnectionFactories : jndi-QCF1,
+
+
+Eg:
+
+Creating Topics:
+java -classpath j2ee.jar:stcjms.jar:fscontext.jar com.stc.jms.client.JNDIRegister -fact com.sun.jndi.fscontext.RefFSContextFactory -url file:/wksp/SB -type t -jndiname jndi-mydurabletopic -dest mydurabletopic
+
+Creating Queues:
+java -classpath j2ee.jar:stcjms.jar:fscontext.jar com.stc.jms.client.JNDIRegister -fact com.sun.jndi.fscontext.RefFSContextFactory -url file:/wksp/SB -type q -jndiname jndi-myqueue -dest myqueue
+
+Creating XA Queue Connection Factory:
+java -classpath j2ee.jar:stcjms.jar:fscontext.jar com.stc.jms.client.JNDIRegister -fact com.sun.jndi.fscontext.RefFSContextFactory -url file:/wksp/SB -type QX -jndiname jndi-XAQCF1 -host <seebeyond MQ server> -port <seebeyond mq port>
+
+Creating Queue Connection Factory:
+java -classpath j2ee.jar:stcjms.jar:fscontext.jar com.stc.jms.client.JNDIRegister -fact com.sun.jndi.fscontext.RefFSContextFactory -url file:/wksp/SB -type Q -jndiname jndi-QCF1 -host <seebeyond MQ server> -port <seebeyond mq port>
+
+Creating XA Topic Connection Factory:
+java -classpath j2ee.jar:stcjms.jar:fscontext.jar com.stc.jms.client.JNDIRegister -fact com.sun.jndi.fscontext.RefFSContextFactory -url file:/wksp/SB -type TX -jndiname jndi-XATCF1 -host <seebeyond MQ server> -port <seebeyond mq port>
+
+Creating Topic Connection Factory:
+java -classpath j2ee.jar:stcjms.jar:fscontext.jar com.stc.jms.client.JNDIRegister -fact com.sun.jndi.fscontext.RefFSContextFactory -url file:/wksp/SB -type T -jndiname jndi-TCF1 -host <seebeyond MQ server> -port <seebeyond mq port>
+
+Note about resource adapter configuration.
+-----------------------------------------
+
+o Look at $RA_HOME/seebeyondtests/build.xml to see asadmin create-resource-adapter-config command.
+o You can modify JNDI properties in this file. Make sure that you have the same URL (file:/wksp/SB) 
+  that you used to bind seebeyond administered objects here. 
+o If you need to adjust the log level of the RA, configure LogLevel property in this file. 
+
+To run all tests
+----------------
+0. Perform the steps outlined in the "Initial Setup" section above.
+1. cd $RA_HOME/seebeyondtests and type in 
+	asant all
+   The "all" target deploys and configures the resource adapter, runs all the tests, 
+   and undeploys the resource adapter.
+
+3. The test run results are also placed at $RA_HOME/tests/genericratests.output.
+
+To run an individual test
+------------------------
+0. Perform the steps outlined in the "Initial Setup" section above.
+1. cd $RA_HOME/tests
+2. Type in "ant setup". This deploys the generic resource adapter for JMS to the 
+application server and configures it to work against the default JMS provider [Sun Java System Message 
+Queue 3.6] bundled with the application server.
+1. cd $RA_HOME/tests/<the-test-you-want-to-run>
+2. Type in "ant all" to execute the test
+
+Problems/Issues
+---------------
+Please use the mailing lists and forums of the Generic RA for JMS project at
+java.net for all your questions/comments.
+https://genericjmsra.dev.java.net/servlets/ProjectMailingListList
+

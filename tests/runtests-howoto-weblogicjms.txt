@@ -1,0 +1,151 @@
+Setup for running tests using the Glassfish Server and WebLogic JMS
+-------------------------------------------------------------------
+
+WebLogic Installation and Configuration
+---------------------------------------
+
+** Download the Oracle WebLogic Server 11gR1 (10.3.3) Generic Distribution from
+http://www.oracle.com/technetwork/middleware/ias/downloads/wls-main-097127.html
+(Select the "Generic" distribution, which is a jar file).
+
+The direct link to the jar file is
+http://download.oracle.com/otn/nt/middleware/11g/wls1033_generic.jar
+(You must be logged into oracle.com to use this)
+
+** Install the jar as described in these instructions:
+http://download.oracle.com/docs/cd/E14571_01/doc.1111/e14142/console.htm#BABEEEAF
+
+In summary,
+1. Add Java 6 to your command path
+2. java -Xmx1024m -d64 -jar wls1033_generic.jar -mode=console
+   (use -d64 only if using a 64-bit JDK)
+3. Next
+4. <new middleware home, e.g. /foo/Oracle/Middleware>
+5. Next
+6. Next
+7. Next
+8. Next
+9. 1
+10. Next
+11. Next
+12. Next
+13. Next
+14. <enter>
+
+** Setup WLS environment in the current shell. 
+
+cd <middleware home>/wlserver_10.3/server/bin
+(switch to bourne shell if needed)
+. setWLSEnv.sh
+
+** Create a new WLS domain and start WLS (requires a graphical display)
+
+cd /MW_HOME/wlserver_10.3/common/quickstart
+quickstart.sh
+(GUI opens)
+Select "Getting started with WebLogic Server 10.3"
+(Configuration wizard opens)
+Follow options to create a domain
+When invited, create user "admin" to have password "admin123"
+Use "developer" mode when invited
+This will create domain  /MW_HOME/user_projects/domains/base_domain which is an admin server
+
+*** Start the domain
+
+cd /MW_HOME/user_projects/domains/base_domain
+startWebLogic.sh
+
+*** Create JMS Server, administered objects etc
+
+Open a browser on http://<hostname>:7001/console
+(login with admin/admin123 as specified earlier)
+
+Select "JMS Servers" link on front page
+Create a new JMS server (use the default name). 
+When configuring this, specify that you want persistent storage using a file store (use the default name and leave directory blank).
+both file store and JMS server should be created in the sole AdminServer instance
+
+Select "JMS Modules" link on front page
+Create a new JMS System Module (use the default name, SystemModule-0), set the target to be the sole AdminServer instance
+
+Navigate to the JMS System Module "SystemModule-0"
+Click on the "Subdeployments" tab and create a new subdeployment GeneralSubdeployment targetted at JMS Server "JMSServer-0"
+
+Create resources in this JMS module. The simplest way to do this is to shutdown the server and to replace the contents of
+/MW_HOME/user_projects/domains/base_domain/config/jms/systemmodule-0-jms.xml
+with the following:
+
+<?xml version='1.0' encoding='UTF-8'?>
+<weblogic-jms xmlns="http://xmlns.oracle.com/weblogic/weblogic-jms" xmlns:sec="http://xmlns.oracle.com/weblogic/security" xmlns:wls="http://xmlns.oracle.com/weblogic/security/wls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.oracle.com/weblogic/weblogic-jms http://xmlns.oracle.com/weblogic/weblogic-jms/1.1/weblogic-jms.xsd">
+  <connection-factory name="outboundQueueFactory">
+    <default-targeting-enabled>true</default-targeting-enabled>
+    <jndi-name>jms/outboundQueueFactory</jndi-name>
+    <security-params>
+      <attach-jmsx-user-id>false</attach-jmsx-user-id>
+    </security-params>
+  </connection-factory>
+  <queue name="inboundQueue">
+    <sub-deployment-name>GeneralSubdeployment</sub-deployment-name>
+    <jndi-name>jms/inboundQueue</jndi-name>
+  </queue>
+  <queue name="outboundQueue">
+    <sub-deployment-name>GeneralSubdeployment</sub-deployment-name>
+    <jndi-name>jms/outboundQueue</jndi-name>
+  </queue>
+  <queue name="resumeQueue">
+    <sub-deployment-name>GeneralSubdeployment</sub-deployment-name>
+    <jndi-name>jms/resumeQueue</jndi-name>
+  </queue>
+  <queue name="Queue-0">
+    <sub-deployment-name>GeneralSubdeployment</sub-deployment-name>
+    <jndi-name>jms/outboundQueue2</jndi-name>
+  </queue>
+  <topic name="Topic-0">
+    <sub-deployment-name>GeneralSubdeployment</sub-deployment-name>
+    <jndi-name>jms/inboundTopic</jndi-name>
+  </topic>
+  <topic name="inboundTopicForDurableTest">
+    <sub-deployment-name>GeneralSubdeployment</sub-deployment-name>
+    <jndi-name>jms/inboundTopicForDurableTest</jndi-name>
+  </topic>
+</weblogic-jms>
+
+Then restart the server and confirm that the JMS System Module "SystemModule-0" contains these entries.
+
+Install Glassfish
+-----------------
+
+Install Glassfish as described in the general readme document
+
+Configure classpath for WebLogic JMS
+----------------------------------------------
+
+** Install WLJMS client in Glassfish
+
+Install Glassfish and copy wlthint3client.jar from /MW_HOME/wlserver_10.3/server/lib into glassfish/lib
+
+** Configure Glassfish classpath: Glassfish 2.x only:
+
+If you are using Glassfish 2.x, you also need to edit glassfish/domains/domain1/config/domain.xml,
+locate the <java-config> element and set the attribute classpath-suffix to be the path to this jar
+
+e.g. <java-config classpath-suffix="C:\Sun\glassfish-2.1.2-v04c\lib\wlthint3client.jar" ...
+
+** Configure application client classpath
+
+Edit the file tests/common/config.properties: Modify the property appclient.cpath to include a path to wlthint3client.jar 
+
+Running the tests
+-----------------
+
+Set environment variables for running the tests as described in the general readme document
+
+To run the tests for WebLogic JMS:
+
+ant gfv3 wljms sync noxa all
+
+If you are using Glassfish 2.x, replace gfv3 with gfv2
+
+Note that async and xa are not supported
+
+

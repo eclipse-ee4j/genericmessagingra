@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+
+    Copyright (c) 2004, 2017 Oracle and/or its affiliates. All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Distribution License v. 1.0, which is available at
+    http://www.eclipse.org/org/documents/edl-v10.php.
+
+    SPDX-License-Identifier: BSD-3-Clause
+
+-->
+
+<project name="stress.queue" default="usage" basedir=".">
+
+	<import file="../common/properties.xml"/>
+	<import file="../common/common.xml"/>
+	<property file="build.properties"/>   
+
+    <target name="all" depends="clean,build,setup,deploy,run,undeploy,unsetup"/>
+    <target name="run-test" depends="build,deploy,run,undeploy"/>
+
+    <target name="clean" depends="init-common">
+      <antcall  target="clean-common"/>
+    </target>
+ 
+    <target name="compile" depends="clean">
+        <antcall  target="compile-common"/>
+    </target>
+
+    <target name="build" depends="compile">
+        <antcall target="build-ear-common">
+            <param name="ejbjar.classes" 
+                value="**/ejb/*.class" />  
+            <param name="appclientjar.classes" 
+              value="**/client/*.class" />   	
+        </antcall>
+    </target> 
+    
+    <target name="setup" depends="check-genericra.jmsimpl.id,init-common">
+    	
+		<!-- select the appropriate string for this provider -->
+		<propertycopy property="connector.pool.property" from="${genericra.jmsimpl.id}.connector.pool.property"/>
+    	
+		<antcall target="create-connector-connpool">
+			<param name="ra.name" value="genericra"/>
+			<param name="connection.defname" value="javax.jms.QueueConnectionFactory"/>
+			<param name="connector.conpool.name" value="qcpool"/>
+			<param name="connector.pool.property" value="${connector.pool.property}"/>
+		</antcall>
+    	
+		<antcall target="create-connector-resource-common">
+			<param name="connector.conpool.name" value="qcpool"/>
+			<param name="connector.jndi.name" value="jms/QCFactory"/>
+		</antcall>	
+    	
+    	
+		<antcall target="create-jms-dest">
+			<param name="dest.name" value="inboundQueue"/>
+			<param name="dest.type" value="queue"/>
+		</antcall>	
+    	
+		<!-- select the appropriate string for this provider -->
+		<propertycopy property="inbound.adminobject.property" from="${genericra.jmsimpl.id}.inbound.adminobject.property"/>
+    	
+		<antcall target="create-admin-object-common">
+			<param name="adminobject.raname" value="genericra"/>
+			<param name="adminobject.restype" value="javax.jms.Queue"/>
+			<param name="adminobject.property" value="${inbound.adminobject.property}"/>
+			<param name="adminobject.jndiname" value="jms/inboundQueue "/>
+		</antcall>	
+		
+        <!-- Only relevant for MQ -->
+		<antcall target="create-jms-dest">
+			<param name="dest.name" value="outboundQueue"/>
+			<param name="dest.type" value="queue"/>
+		</antcall>	
+    	
+		<!-- select the appropriate string for this provider -->
+		<propertycopy property="reply.adminobject.property" from="${genericra.jmsimpl.id}.reply.adminobject.property"/>    	
+    	
+		<antcall target="create-admin-object-common">
+			<param name="adminobject.raname" value="genericra"/>
+			<param name="adminobject.restype" value="javax.jms.Queue"/>
+			<param name="adminobject.property" value="${reply.adminobject.property}"/>
+			<param name="adminobject.jndiname" value="jms/outboundQueue"/>
+		</antcall>	
+    </target>
+
+    <target name="deploy" depends="init-common">
+        <antcall target="deploy-common"/>
+    </target>
+    
+    <target name="run" depends="init-common">
+    	<record name="${basedir}/test.out" action="start" />
+    	<echo>(run) Started recording to ${basedir}/test.out</echo>
+    	    	   	
+        <antcall target="runclient-common"/>
+        
+    	<echo>(run) Stopping recording to ${basedir}/test.out</echo>
+    	<record name="${basedir}/test.out" action="stop" />
+    	    	
+    	<antcall target="runjunit-common"/>    	
+    </target>
+ 
+    <target name="undeploy" depends="init-common">
+        <antcall target="undeploy-common"/>
+    </target>   
+
+    <target name="unsetup" depends="init-common">
+		<antcall target="delete-connector-resource-common">
+			<param name="connector.jndi.name" value="jms/QCFactory"/>
+		</antcall>	
+		<antcall target="delete-connector-connpool-common">
+			<param name="connector.conpool.name" value="qcpool"/>
+		</antcall>
+		<antcall target="delete-jms-dest">
+			<param name="dest.name" value="inboundQueue"/>
+			<param name="dest.type" value="queue"/>
+		</antcall>	
+		<antcall target="delete-admin-object-common">
+			<param name="adminobject.jndiname" value="jms/inboundQueue "/>
+		</antcall>	
+		
+		<antcall target="delete-jms-dest">
+			<param name="dest.name" value="outboundQueue"/>
+			<param name="dest.type" value="queue"/>
+		</antcall>	
+		<antcall target="delete-admin-object-common">
+			<param name="adminobject.jndiname" value="jms/outboundQueue "/>
+		</antcall>	
+	
+    </target>
+
+    <target name="usage">
+        <antcall target="usage-common"/>
+    </target>
+</project>
