@@ -27,9 +27,6 @@ Dianne Jiao
 ## Technical Architecture
 
 image:jmsra-arch.jpg[alt="jmsra-arch"]
-```
-Figure 1: Pooling of connections for message production.
-```
 
 As shown in Figure-1, Generic Resource Adapter wraps the JMS client library of the JMS provider. The Resource Adapter can be configured to use either reflection or JNDI lookup as the way to obtain JMS Administered Objects for its internal operation. These administered objects are used as the basic gateway to contact the JMS provider for both inbound and outbound communication. The Resource Adapter can be configured to indicate whether the JMS provider supports XA or not. Configuration details are described below . 
 
@@ -513,11 +510,11 @@ Following are the list of features implemented in the Generic Resource Adapter f
 
 ## How to checkout source and build the resource adapter
 
-https://genericjmsra.dev.java.net/servlets/ProjectSource gives information about how to checkout the source code of the Generic Resource Adapter for JMS. See the instructions on README.build file on the tip of cvs tree to learn about building Generic Resource Adapter for JMS.
+https://github.com/eclipse-ee4j/genericjmsra gives information about how to checkout the source code of the Generic Resource Adapter for JMS. See the instructions on README.build file on the tip of cvs tree to learn about building Generic Resource Adapter for JMS.
 
 ## Feedback
 
-Please provide your valuable feedback to the mailing lists mentioned here, https://genericjmsra.dev.java.net/servlets/ProjectMailingListList
+Please use https://github.com/eclipse-ee4j/genericjmsra/issues to report an issue or ask quesitons.
 
 ## More Information
 Developing connectors with Sun Java System Application Server
