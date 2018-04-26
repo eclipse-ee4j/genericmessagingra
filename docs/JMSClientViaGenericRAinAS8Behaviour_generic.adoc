@@ -323,11 +323,10 @@ each other.||0
 There are a number of configuration options to control the behaviour of the transaction manager that is built into the application server. These options are configured in the specific configuration for the instance or cluster of instances that will be communicating with the JMS resources. The options for the transaction manager are described in Table 4.
 
 .Application Server Transaction Manager configuration.
-[options="header, header"]
 |==================================
-|Config Parameter|Description 1.2+|Default
-Value 1.2+|Example|
-^|GUI ^|Command Line|
+2+^|*Config Parameter* .2+<.>|*Description* .2+<.>|*Default
+Value* .2+<.>|*Example*
+^|GUI ^|Command Line
 |OnRestart|config-
 name>.transaction-
 service.automatic-
@@ -360,8 +359,7 @@ Timeout field.|600|60
 |Transaction Log
 Location|config-
 name>.transaction-
-service.tx-log-dir|The transaction log records the
-information about each
+service.tx-log-dir|The transaction log records the information about each
 transaction in order to maintain
 the data integrity of the
 resources involved and to
@@ -376,70 +374,24 @@ ceRoot}/lo
 gs|/some/other/directory/if/the/d
 efault/is/not/desired/log
 |Heuristic
-Decision|config-
-name>.transaction-
-service.heuristic-
-decision|This can be set to rollback or
+Decision|config-name>.
+transaction-service.
+heuristic-decision|This can be set to rollback or
 commit. If a transaction is in an
 indeterminate state then the
 action specified here is the
 action that will be taken. i.e. By
 default it will rollback all
-operations.|rollback| 
+operations.|rollback|
+|KeyPoint Interval|config-name>.
+transaction-service.
+keypoint-interval
+|Keypoint operations compress the transaction log file. The keypoint interval is the number of transactions between keypoint operations on the log. Keypoint operations can reduce the size of the transaction log files. A larger number of keypoint intervals (for example, 2048) results in larger transaction log files, but fewer keypoint operations, and potentially better performance. A smaller keypoint interval (for example, 256) results in smaller log files but slightly reduced performance due to the greater frequency of keypoint operations.
 
-|KeyPoint
-Interval|config-
-name>.transaction-
-service.keypoint-
-interval|Keypoint operations compress
-the transaction log file. The
-keypoint interval is the number
-of transactions between keypoint
-operations on the log. Keypoint
-operations can reduce the size
-of the transaction log files. A
-larger number of keypoint
-intervals (for example, 2048)
-results in larger transaction log
-files, but fewer keypoint
-operations, and potentially better
-performance. A smaller keypoint
-interval (for example, 256)
-results in smaller log files but
-slightly reduced performance
-due to the greater frequency of
-keypoint operations.
-Every transaction is written into
-the tx log file and every n
-transactions that occur the app
-server will clean out the
-transaction log file so that only
-currently active transactions are
-held there. The value of n is the
-keypoint value. Thus a large
-value will give larger files but
-better performance as there are
-less clean out operations while a
-small value will give small files
-but the clear down has to
-happen more often. In either
-case transactions that are in-
-flight will always be kept.
+Every transaction is written into the tx log file and every n transactions that occur the app server will clean out the transaction log file so that only currently active transactions are held there. The value of n is the keypoint value. Thus a large value will give larger files but better performance as there are less clean out operations while a small value will give small files but the clear down has to happen more often. In either case transactions that are in-flight will always be kept.
 
-Set the keypoint interval to as
-large as possible a value if the
-disk space is of not a concern. At
-a key point, transaction log
-system logs a special record
-called "key point start" and then
-tries to rewrite all the active
-transactions. if they have been
-written earlier and puts "keypoint
-end" special record. Transaction
-log system considers the rewrite
-entries only if it finds a "key point
-start" as well as "keypoint end"
-records.|2048
+Set the keypoint interval to as large as possible a value if the disk space is of not a concern. At a key point, transaction log system logs a special record called "key point start" and then tries to rewrite all the active transactions. if they have been written earlier and puts "keypoint end" special record. Transaction log system considers the rewrite entries only if it finds a "key point start" as well as "keypoint end" records.
+|2048|
 |==================================
 
 ### Overlap between GenericJMSRA config and JMS Client/Broker Configuration 
@@ -447,6 +399,7 @@ records.|2048
 A number of the configuration options that the genericjmsra can perform overlap with behaviour that can be configured either by the connection factories or by the broker it is connecting to. Only one object should take responsibility for this behaviour with the more centralised connection factories or broker taking control. The
 configuration options in particular are detailed in
 
+[options="header"]
 |===
 |Configuration|GenericRA|ConnectionFactory|Description
 |Redelivery|Value specified in the
@@ -543,7 +496,7 @@ reconnect attempts expires.
 
 The following asadmin commands can be used to configure the application server to deploy the GenericJMSRA
 and configure the connection pools.
-["header"]
+[options="header"]
 |===
 |Asadmin Command (Not showing options of – host, - -
 port, - -user & - -passwordfile for clarity. Apply to all commands)|Description
