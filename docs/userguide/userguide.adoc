@@ -514,7 +514,7 @@ https://github.com/eclipse-ee4j/genericjmsra gives information about how to chec
 
 ## Feedback
 
-Please use https://github.com/eclipse-ee4j/genericjmsra/issues to report an issue or ask quesitons.
+Please use https://github.com/eclipse-ee4j/genericjmsra/issues to report an issue or ask questions.
 
 ## More Information
 Developing connectors with Sun Java System Application Server
