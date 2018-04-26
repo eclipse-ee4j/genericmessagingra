@@ -14,6 +14,7 @@ Generic Resource Adapter for JMS is a J2EE Connector 1.5 resource adapter that c
 
 Following Individuals from Sun Microsystems have contributed significantly to inception and delivery of this project.
 
+```
 Binod P.G
 Sivakumar Thyagarajan
 George Tharakan
@@ -23,6 +24,7 @@ Murthy Narayanan
 V Narayanan
 Sanjeev Krishnan
 Dianne Jiao
+```
 
 ## Technical Architecture
 
@@ -41,6 +43,7 @@ For achieving inbound communication to message driven beans, Generic Resource Ad
 ## How to configure the Generic Resource Adapter for JMS?
 
 A J2EE 1.4 application server's administration tools can be used to deploy and configure Generic Resource Adapter for JMS. This section explains how to configure Generic Resource Adapter for JMS with Sun Java System Application Server.  Overall the Resource Adapter can be configured to indicate whether JMS provider supports XA or not. It is also possible to indicate what mode of integration is possible with JMS provider. Two modes of integration is supported by the Resource Adapter. First one uses JNDI as the means of integration. In this case, administered objects are setup in JMS provider's JNDI tree and will be looked up for use by the Generic Resource Adapter resources. If that mode is not suitable for integration, it is also possible to use java reflection of JMS administered object javabean classes as the mode of integration. 
+
 Users can use either the Sun Java System Application server's admin GUI or CLI to configure the resource adapter. This is not different from configuring any other resource adapter. More information about how to use a resource adapter with application server is available in the Adminsitratiion Guide and Developers Guide of the Application Server 8.1
 
 Prior to deploying the resource adapter JMS client libraries should be made available to the application server. For some JMS providers, client libraries may also include native libraries. In such cases, these native libraries should also be made available to the application server JVM(s).
@@ -50,8 +53,9 @@ Prior to deploying the resource adapter JMS client libraries should be made avai
 Following steps could be used to deploy the resource adapter and configure the resources to work with SJSMQ. For some other JMS provider, though steps would remain the same, the information will change.
 
 ### Deploying the resource adapter:
+
 ```
-1)asadmin create-resource-adapter-config --user admin --password adminadmin --property SupportsXA=true:ProviderIntegrationMode=javabean:ConnectionFactoryClassName=com.sun.messaging.ConnectionFactory:\
+asadmin create-resource-adapter-config --user admin --password adminadmin --property SupportsXA=true:ProviderIntegrationMode=javabean:ConnectionFactoryClassName=com.sun.messaging.ConnectionFactory:\
 CommonSetterMethodName=setProperty:UserName=guest:Password=guest:\
 QueueConnectionFactoryClassName=com.sun.messaging.QueueConnectionFactory:\
 TopicConnectionFactoryClassName=com.sun.messaging.TopicConnectionFactory:\
@@ -59,19 +63,27 @@ QueueClassName=com.sun.messaging.Queue:TopicClassName=com.sun.messaging.Topic:\
 LogLevel=info:UserName=guest:Password=guest:XAQueueConnectionFactoryClassName=com.sun.messaging.XAQueueConnectionFactory:\
 XATopicConnectionFactoryClassName=com.sun.messaging.XATopicConnectionFactory:\
 XAConnectionFactoryClassName=com.sun.messaging.XAConnectionFactory genericra
+```
 
-2)asadmin deploy --user admin --password adminadmin /tmp/genericra.rar
+```
+asadmin deploy --user admin --password adminadmin /tmp/genericra.rar
 ```
 
 ### Creating a ConnectionFactory
 
-1)asadmin create-connector-connection-pool --raname genericra --connectiondefinition javax.jms.QueueConnectionFactory qcpool
+```
+asadmin create-connector-connection-pool --raname genericra --connectiondefinition javax.jms.QueueConnectionFactory qcpool
+```
 
-2)asadmin create-connector-resource --poolname qcpool jms/QCFactory
+```
+asadmin create-connector-resource --poolname qcpool jms/QCFactory
+```
 
 ### Creating a Destination
 
-1)asadmin create-admin-object --raname genericra --restype javax.jms.Queue --property DestinationProperties=Name\\=clientQueue jms/clientQueue
+```
+asadmin create-admin-object --raname genericra --restype javax.jms.Queue --property DestinationProperties=Name\\=clientQueue jms/clientQueue
+```
 
 ### MDB deployment descriptor
 
@@ -230,6 +242,7 @@ Following is an example of a sun-ejb-jar.xml configured to use Generic Resource 
 ### Security policy changes
 
 Following security policy changes are required in Sun Java System Application Server.
+
 1. Modify <SJSAS_HOME>/domains/domain1/config/server.policy to add java.util.logging.LoggingPermission "control"
 2. Modify <SJS_HOME>/lib/appclient/client.policy to add permission javax.security.auth.PrivateCredentialPermission
 "javax.resource.spi.security.PasswordCredential * \"*\"","read";
