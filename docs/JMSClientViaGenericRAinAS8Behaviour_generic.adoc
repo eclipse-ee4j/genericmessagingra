@@ -1,23 +1,11 @@
 # Cookbook for connecting to JMS queues from Sun Application Server 8.x via the GenericJMSRA
 
-Author:
-
-```
-Donald Forbes
-```
-Document Date:
-
-```
-1 June 2006
-```
+:author: Donald Forbes
+:document-date: 1 June 2006
 
 ## Introduction
 
-In order to consume and produce messages from a JMS provider via a J2EE application server there are many steps
-required to setup the environment and many configuration options to be considered. These options make the
-environment very flexible but are very confusing to a novice, the cookbook is not a prescriptive recipe to setup the
-application server and JMS adapter but provides some guidance around the possible options and explains some
-potential pitfalls that must be considered.
+In order to consume and produce messages from a JMS provider via a J2EE application server there are many steps required to setup the environment and many configuration options to be considered. These options make the environment very flexible but are very confusing to a novice, the cookbook is not a prescriptive recipe to setup the application server and JMS adapter but provides some guidance around the possible options and explains some potential pitfalls that must be considered.
 
 ## Solution Overview
 
@@ -139,8 +127,7 @@ try {
 }
 ```
 
-The setup is depicted in Figure 3, this shows that the application server will maintain a pool of
-connections that are setup by the generic JMS resource adapter. A J2EE application can then make use of the pooled connections.
+The setup is depicted in Figure 3, this shows that the application server will maintain a pool of connections that are setup by the generic JMS resource adapter. A J2EE application can then make use of the pooled connections.
 
 image:figure3.png[alt="Figure 3"]
 ```
@@ -166,13 +153,13 @@ managedconnectionfactory-class element in the ra.xml file. Properties of this el
 ManagedConnectionFactory JavaBean configuration settings. For the GenericJMSRA the
 properties that can be overridden are:-
 
-.Generic RA configurable parameters for connector pool
 [options="header"]
+.Generic RA configurable parameters for connector pool
 |=========================
 |Config Parameter|Description|Default
 Value|Example
-|ConnectionFactory
-JndiName|This provides details of the actual entry of the managed object in
+|`ConnectionFac
+toryJndiName`|This provides details of the actual entry of the managed object in
 LDAP. The connection factory.
 This can define the entire URL to
 the directory entry or can be
@@ -180,7 +167,8 @@ relative to the URL defined in the
 deployment of the genericjmsra.
 ||cn=theQueueConnectionFa
 ctory
-|ClientId|The purpose of the client identifier
+
+|`ClientId`|The purpose of the client identifier
 is to associate a connection and its
 objects with a state maintained on
 behalf of the client by a provider.
@@ -188,8 +176,10 @@ By definition, the client state
 identified by a client identifier can
 be in use by only one client at a
 time.||
-|Connection
-ValidationEnabled|This is a boolean that alters the
+
+|`ConnectionVal
+idationEnable
+d`|This is a boolean that alters the
 behaviour of the GenericRA to confirm the connection is still valid before using it. It is mandatory to have the setting set to *true* if the connections are to reconnect to a broker that has failed for any reason.|False |true
 |=========================
 
@@ -240,25 +230,28 @@ that the MDB consumes from.
 
 ##### MDB Deployment Descriptor Properties
 
-.MDB Deployment Descriptor parameters
 [options="header"]
+.MDB Deployment Descriptor parameters
 |==================================
 |Config Parameter|Description|Default Value|Example
-|MaxPoolSize|Maximum size of server session
+
+|`MaxPoolSize`|Maximum size of server session
 pool internally created by
 resource adapter for achieving
 concurrent message delivery.
 This should be equal to
 maximum pool size of MDB
 objects.|8|32
-|MaxWaitTime|Resource Adapter will wait for
+
+|`MaxWaitTime`|Resource Adapter will wait for
 the time in seconds specified by
 this property to obtain a server
 session from its internal pool. If
 this limit is exceeded message
 delivery will fail.|3|
-|MessageSelect
-or|A valid MessageSelector as
+
+|`MessageSele
+ctor`|A valid MessageSelector as
 specified by jms 1.1 specification.||
 MessageFormat =
 'Version 3.4'
@@ -269,10 +262,12 @@ InventoryID
 Quantity BETWEEN 100
 AND 1300
 ]]>
-|ClientID|ClientID as specified by jms 1.1 specification.
+
+|`ClientID`|ClientID as specified by jms 1.1 specification.
 ||MdbConsumer
-|ConnectionFac
-toryJndiName|JNDI name of connection
+
+|`ConnectionFac
+toryJndiName`|JNDI name of connection
 factory created in JMS provider.
 This connection factory will be
 used by resource adapter to
@@ -286,8 +281,9 @@ jndi store, thus if the
 administered objects are held in
 ldap then the value should be
 cn=... || cn=myQueueConnectionFactory
-|DestinationJn
-diName|JNDI name of destination
+
+|`DestinationJn
+diName`|JNDI name of destination
 created in JMS provider. This
 destination will be used by
 resource adapter to create a
@@ -297,10 +293,13 @@ ProviderIntegrationMode is
 configured as “jndi”. Syntax as
 per connection factory lookup.||
 cn=myDestinationQueue
-|DestinationTy
-pe|Type of the destination the MDB
+
+|`DestinationTy
+pe`|Type of the destination the MDB
 will listen to.||javax.jms.Queue or javax.jms.Topic
-|RedeliveryAttempts|Number of times a message will
+
+|`RedeliveryAtt
+empts`|Number of times a message will
 be redelivered in case a
 message cause a runtime
 exception in the MDB.
@@ -326,19 +325,22 @@ There are a number of configuration options to control the behaviour of the tran
 |==================================
 2+^|*Config Parameter* .2+<.>|*Description* .2+<.>|*Default
 Value* .2+<.>|*Example*
-^|GUI ^|Command Line
-|OnRestart|config-
+^| _GUI_ ^| _Command Line_
+
+|`OnRestart`|`config-
 name>.transaction-
 service.automatic-
-recovery|Determines if the application
+recovery`|Determines if the application
 server will automatically attempt
 to recover transactions when it is
 started.|true|
-|Transaction Timeout
-|config-
+
+|`Transaction 
+Timeout`
+|`config-
 name>.transaction-
-service.timeout-in-
-seconds|By default,the server does not
+service.timeout-
+in-seconds`|By default,the server does not
 timeout a transaction.That is,the
 server waits indefinitely for a
 transaction to complete. If you
@@ -347,19 +349,21 @@ transactions, if a transaction isn't
 completed within the configured
 time, the Application Server rolls
 back the transaction.|0|
-|Retry
-Timeout|config-
+
+|`Retry
+Timeout`|`config-
 name>.transaction-
 service.retry-
-timeout-in-seconds|Sets the amount of time (in
+timeout-in-seconds`|Sets the amount of time (in
 seconds) the Application Server
 tries to connect to the
 unreachable server in the Retry
 Timeout field.|600|60
-|Transaction Log
-Location|config-
+
+|`Transaction 
+Log Location`|`config-
 name>.transaction-
-service.tx-log-dir|The transaction log records the information about each
+service.tx-log-dir`|The transaction log records the information about each
 transaction in order to maintain
 the data integrity of the
 resources involved and to
@@ -373,19 +377,20 @@ human readable.|${com.sun
 ceRoot}/lo
 gs|/some/other/directory/if/the/d
 efault/is/not/desired/log
-|Heuristic
-Decision|config-name>.
+
+|`Heuristic
+Decision`|`config-name>.
 transaction-service.
-heuristic-decision|This can be set to rollback or
+heuristic-decision`|This can be set to rollback or
 commit. If a transaction is in an
 indeterminate state then the
 action specified here is the
 action that will be taken. i.e. By
 default it will rollback all
 operations.|rollback|
-|KeyPoint Interval|config-name>.
+|`KeyPoint Interval`|`config-name>.
 transaction-service.
-keypoint-interval
+keypoint-interval`
 |Keypoint operations compress the transaction log file. The keypoint interval is the number of transactions between keypoint operations on the log. Keypoint operations can reduce the size of the transaction log files. A larger number of keypoint intervals (for example, 2048) results in larger transaction log files, but fewer keypoint operations, and potentially better performance. A smaller keypoint interval (for example, 256) results in smaller log files but slightly reduced performance due to the greater frequency of keypoint operations.
 
 Every transaction is written into the tx log file and every n transactions that occur the app server will clean out the transaction log file so that only currently active transactions are held there. The value of n is the keypoint value. Thus a large value will give larger files but better performance as there are less clean out operations while a small value will give small files but the clear down has to happen more often. In either case transactions that are in-flight will always be kept.
@@ -402,13 +407,14 @@ configuration options in particular are detailed in
 [options="header"]
 |===
 |Configuration|GenericRA|ConnectionFactory|Description
+
 |Redelivery|Value specified in the
 activationSpecification
 of an MDB.
 Key Properties:-
-RedeliveryAttempts
+`RedeliveryAttempts
 RedeliveryInterval
-SendBadMessagesToDMD
+SendBadMessagesToDMD`
 |N/A |Number of times a message will be
 redelivered in case a message causes a
 runtime exception in the MDB. If the number
@@ -419,6 +425,7 @@ Generally more control is desired and the
 client code determines what should be done
 with a message that cannot be processed.
 i.e. Set RedeliveryAttempts to 0
+
 |Reconnection|Activation specification
 properties for an MDB:-
 `ReconnectAttempts
@@ -496,19 +503,20 @@ reconnect attempts expires.
 
 The following asadmin commands can be used to configure the application server to deploy the GenericJMSRA
 and configure the connection pools.
-[options="header"]
+[options="header", style="asciidoc"]
 |===
-|Asadmin Command (Not showing options of – host, - -
-port, - -user & - -passwordfile for clarity. Apply to all commands)|Description
-|asadmin create-threadpool
+|_Asadmin Command (Not showing options of – host, - -
+port, - -user & - -passwordfile for clarity. Apply to all commands)_|Description
+|`asadmin create-threadpool
 --target <Configuration_name>
 --maxthreadpoolsize <max_size>
 --minthreadpoolsize <minimum size>
 --idletimeout <time_in_seconds_for_timeout>
 --workqueues <number_of_work_queues>
-name_of_thread_pool
+name_of_thread_pool`
 |This command will create a thread pool in a configuration. The genericjmsra can then be allocated to utilise this threadpool. Ensure that the number of threads in the pool will be enough to cope with the number of connections that the generic JMSRA will be expected to setup. (i.e. Number of objects in the pools and number of server sessions/MDBs that it will be expected to handle.)
-|asadmin create-resource-adapter-config
+
+|`asadmin create-resource-adapter-config
 --threadpools $THREAD_POOL_NAME
 --property
 SupportsXA=true:ProviderIntegrationMode=jndi:UserN
@@ -519,28 +527,31 @@ r.url\\="<url_for_direcory",java.naming.security.p
 rincipal\\=<username_for_directory>,java.naming.se
 curity.credentials\\=<userpassword_for_directory>:
 LogLevel=info
-name_of_resource_adapter_to_be_deployed
-|
-This command will setup the properties that will apply to
+name_of_resource_adapter_to_be_deployed`
+|This command will setup the properties that will apply to
 the deployment of the generic JMS RA. The properties
 define the fact that it will:-
-- Support XA transactions
-- provide a username and password for connecting
+
+    * Support XA transactions
+    * provide a username and password for connecting
     to the JMS broker
-- Define the JNDI Properties that will be used to
+    - Define the JNDI Properties that will be used to
     connect to the LDAP source. (URL,
     username/password etc.)
-- Output log level for the adapter.
+    - Output log level for the adapter.
+
 Other options link the adapter to the thread pool that was
 previously created.
 The name of the resource must match to the name that
 will be given to the deployed adapter. (next step)
-|asadmin deploy
+
+|`asadmin deploy
 --name <name_of_resource_adapter_to_be_deployed>
 --target <cluster_name_or_instance_name>
-/location/of/the/genericjmsra.rar_file
+/location/of/the/genericjmsra.rar_file`
 |This command will deploy the actual rar file to the server, using the configuration that was previously setup and defining the clusters/instances that it will be deployed to.
-|asadmin create-connector-connection-pool
+
+|`asadmin create-connector-connection-pool
 --steadypoolsize <expected_concurrency_value>
 --maxpoolsize <max_concurrency_value>
 --poolresize
@@ -554,7 +565,7 @@ javax.jms.QueueConnectionFactory
 ConnectionValidationEnabled=true:ConnectionFactory
 JndiName=<for_ldap_URL_of_administered_object-
 cn=...>
-meaningful_name_for_connection_pool
+meaningful_name_for_connection_pool`
 |Creates the connection pool for all the connection
 factories that provide the access to the JMS resource. The usual pooling configuration options are required.
 The properties are extensions to the normal app server
@@ -565,20 +576,22 @@ ConnectionValidationEnabled is required. The
 ConnectionFactoryJNDIName is used to specify the actual
 JMS administered object that is held in the directory
 server.
-|asadmin create-connector-resource 
+
+|`asadmin create-connector-resource 
 --poolname <link_to_pool_to_use> 
 --target <cluster_or_instancename>
-jndi_name_that_apps_will_lookup
+jndi_name_that_apps_will_lookup`
 |This command will define the JNDI name that an
 application will lookup to get access to the resource. The name is then linked to the connector pool and all the clusters/instances that the resource is to be available on are defined.
-|asadmin create-admin-object
+
+|`asadmin create-admin-object
 --raname <name_of_resource_adapter_deployed>
 --target <cluster_or_instancename>
 --restype javax.jms.Queue
 --property
 DestinationJndiName=<URL_for_location_of_destinati
 on_in_directory>
-jndi_lookupname_for_destination
+jndi_lookupname_for_destination`
 |Defines the JNDI lookup name for an administered object. In the case of JMS this is the destination/queue name. The properties link the lookup to the resource adapter, type of the resource and the cluster/instances that will advertise the destination. The properties allow the URL for the lookup in ldap where the administered objects are stored.
 |===
 There may be a requirement to add additional properties to the application server to add to the classpath or a
