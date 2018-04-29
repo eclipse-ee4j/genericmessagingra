@@ -528,17 +528,14 @@ rincipal\\=<username_for_directory>,java.naming.se
 curity.credentials\\=<userpassword_for_directory>:
 LogLevel=info
 name_of_resource_adapter_to_be_deployed`
-|This command will setup the properties that will apply to
+ a|This command will setup the properties that will apply to
 the deployment of the generic JMS RA. The properties
 define the fact that it will:-
 
-    * Support XA transactions
-    * provide a username and password for connecting
-    to the JMS broker
-    - Define the JNDI Properties that will be used to
-    connect to the LDAP source. (URL,
-    username/password etc.)
-    - Output log level for the adapter.
+* Support XA transactions
+* provide a username and password for connecting to the JMS broker
+* Define the JNDI Properties that will be used to connect to the LDAP source. (URL, username/password etc.)
+* Output log level for the adapter.
 
 Other options link the adapter to the thread pool that was
 previously created.
