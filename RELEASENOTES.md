@@ -12,10 +12,10 @@ Principal Contributors: Binod PG, Sivakumar Thyagarajan and V.Narayanan
 
 Feature list and issues are available at docs/userguide.html in the full 
 distribution bundle. User guide is also available at 
-https://genericjmsra.dev.java.net/source/browse/*checkout*/genericjmsra/docs/userguide/userguide.html
+https://github.com/eclipse-ee4j/genericjmsra/tree/master/docs/userguide
 
 Please use the java.net project forums/mailing list available at 
-https://genericjmsra.dev.java.net/servlets/ProjectMailingListList for your comments/feedback 
+https://github.com/eclipse-ee4j/genericjmsra/issues for your comments/feedback 
 
 Fixes afavilable in 1.0 release are available at
-https://genericjmsra.dev.java.net/issues/buglist.cgi?component=genericjmsra&keywords=fixed1.0
+https://github.com/eclipse-ee4j/genericjmsra/issues?q=label%3Afixed1_0+is%3Aclosed
