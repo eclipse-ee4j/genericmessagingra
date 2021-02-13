@@ -425,4 +425,20 @@ public class WMessageIn implements Message {
     public void setBatchSize(int batchSize) {
         mBatchSize = batchSize;
     }
+
+    public boolean isBodyAssignableTo(Class c) throws JMSException {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> T getBody(Class<T> c) throws JMSException {
+        throw new UnsupportedOperationException();
+    }
+
+    public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
+        throw new UnsupportedOperationException();
+    }
+
+    public long getJMSDeliveryTime() throws JMSException {
+        throw new UnsupportedOperationException();
+    }
 }

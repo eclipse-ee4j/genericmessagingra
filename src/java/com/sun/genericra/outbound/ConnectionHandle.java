@@ -298,4 +298,20 @@ public class ConnectionHandle implements javax.jms.Connection, TopicConnection,
     void _addTemporaryDest(Destination dest) {
         tempDestinations.add(dest);
     }
+
+    public ConnectionConsumer createSharedDurableConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+        throw new UnsupportedOperationException();
+    }
+
+    public ConnectionConsumer createSharedConnectionConsumer(Topic topic, String subscriptionName, String messageSelector, ServerSessionPool sessionPool, int maxMessages) throws JMSException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Session createSession() throws JMSException {
+        throw new UnsupportedOperationException();
+    }
+
+    public Session createSession(int sessionMode) throws JMSException {
+        throw new UnsupportedOperationException();
+    }
 }

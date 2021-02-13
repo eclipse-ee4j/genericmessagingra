@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.logging.*;
 
 import javax.jms.Connection;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.TopicConnection;
@@ -120,5 +121,21 @@ public class ConnectionFactory implements javax.jms.ConnectionFactory,
 
     public Reference getReference() {
         return this.ref;
+    }
+
+    public JMSContext createContext() {
+        throw new UnsupportedOperationException();
+    }
+
+    public JMSContext createContext(String userName, String password) {
+        throw new UnsupportedOperationException();
+    }
+
+    public JMSContext createContext(String userName, String password, int sessionMode) {
+        throw new UnsupportedOperationException();
+    }
+
+    public JMSContext createContext(int sessionMode) {
+        throw new UnsupportedOperationException();
     }
 }
