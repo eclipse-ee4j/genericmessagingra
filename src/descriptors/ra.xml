@@ -132,13 +132,13 @@
                 </config-property>                
                 
                 <connectionfactory-interface> 
-                    javax.jms.QueueConnectionFactory
+                    jakarta.jms.QueueConnectionFactory
                 </connectionfactory-interface>
                 <connectionfactory-impl-class>
                     com.sun.genericra.outbound.ConnectionFactory
                 </connectionfactory-impl-class>
                 <connection-interface> 
-                    javax.jms.QueueConnection
+                    jakarta.jms.QueueConnection
                 </connection-interface>
                 <connection-impl-class>
                     com.sun.genericra.outbound.ConnectionHandle
@@ -163,13 +163,13 @@
                 </config-property>                
                 
                 <connectionfactory-interface> 
-                    javax.jms.TopicConnectionFactory
+                    jakarta.jms.TopicConnectionFactory
                 </connectionfactory-interface>
                 <connectionfactory-impl-class>
                     com.sun.genericra.outbound.ConnectionFactory
                 </connectionfactory-impl-class>
                 <connection-interface> 
-                    javax.jms.TopicConnection
+                    jakarta.jms.TopicConnection
                 </connection-interface>
                 <connection-impl-class>
                     com.sun.genericra.outbound.ConnectionHandle
@@ -194,13 +194,13 @@
                 </config-property>                
                 
                 <connectionfactory-interface> 
-                    javax.jms.ConnectionFactory
+                    jakarta.jms.ConnectionFactory
                 </connectionfactory-interface>
                 <connectionfactory-impl-class>
                     com.sun.genericra.outbound.ConnectionFactory
                 </connectionfactory-impl-class>
                 <connection-interface> 
-                    javax.jms.Connection
+                    jakarta.jms.Connection
                 </connection-interface>
                 <connection-impl-class>
                     com.sun.genericra.outbound.ConnectionHandle
@@ -215,7 +215,7 @@
                     BasicPassword
                 </authentication-mechanism-type>
                 <credential-interface>
-                    javax.resource.spi.security.PasswordCredential
+                    jakarta.resource.spi.security.PasswordCredential
                 </credential-interface>
             </authentication-mechanism>
             <reauthentication-support>
@@ -227,7 +227,7 @@
             <messageadapter>          
                 <messagelistener>
                     <messagelistener-type>
-                        javax.jms.MessageListener
+                        jakarta.jms.MessageListener
                     </messagelistener-type>
                     <activationspec>
                         <activationspec-class>
@@ -239,7 +239,7 @@
         </inbound-resourceadapter>
         
         <adminobject>
-            <adminobject-interface>javax.jms.Queue
+            <adminobject-interface>jakarta.jms.Queue
             </adminobject-interface>
             <adminobject-class>
                 com.sun.genericra.outbound.QueueProxy
@@ -267,7 +267,7 @@
         </adminobject>
         <adminobject>
             <adminobject-interface>
-                javax.jms.Topic
+                jakarta.jms.Topic
             </adminobject-interface>
             <adminobject-class>
                 com.sun.genericra.outbound.TopicProxy

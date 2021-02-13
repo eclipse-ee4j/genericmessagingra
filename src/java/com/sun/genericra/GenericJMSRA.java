@@ -23,15 +23,15 @@ import java.security.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ActivationSpec;
-import javax.resource.spi.BootstrapContext;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.ResourceAdapterInternalException;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.resource.spi.work.WorkManager;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ActivationSpec;
+import jakarta.resource.spi.BootstrapContext;
+import jakarta.resource.spi.ResourceAdapter;
+import jakarta.resource.spi.ResourceAdapterInternalException;
+import jakarta.resource.spi.endpoint.MessageEndpointFactory;
+import jakarta.resource.spi.work.WorkManager;
 
 import javax.transaction.xa.XAResource;
 import javax.management.MBeanServerFactory;
@@ -144,8 +144,8 @@ public class GenericJMSRA extends GenericJMSRAProperties
         }
         
         try {
-            Class msgListenerClass = javax.jms.MessageListener.class;
-            Class[] paramTypes = { javax.jms.Message.class };
+            Class msgListenerClass = jakarta.jms.MessageListener.class;
+            Class[] paramTypes = { jakarta.jms.Message.class };
             onMessageMethod = msgListenerClass.getMethod("onMessage", paramTypes);
         } catch (NoSuchMethodException ex) {
             throw ExceptionUtils.newResourceAdapterInternalException(ex);

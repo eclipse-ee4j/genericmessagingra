@@ -10,8 +10,8 @@
 
 package com.sun.genericra.inbound.sync;
 
-import javax.jms.JMSException;
-import javax.jms.ObjectMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.ObjectMessage;
 
 import java.io.Serializable;
 
@@ -37,14 +37,14 @@ public class WObjectMessageIn extends WMessageIn implements ObjectMessage {
     }
 
     /**
-     * @see javax.jms.ObjectMessage#getObject()
+     * @see jakarta.jms.ObjectMessage#getObject()
      */
     public Serializable getObject() throws JMSException {
         return mDelegate.getObject();
     }
 
     /**
-     * @see javax.jms.ObjectMessage#setObject(java.io.Serializable)
+     * @see jakarta.jms.ObjectMessage#setObject(java.io.Serializable)
      */
     public void setObject(Serializable arg0) throws JMSException {
         mDelegate.setObject(arg0);

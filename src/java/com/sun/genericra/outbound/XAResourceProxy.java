@@ -17,9 +17,9 @@ import com.sun.genericra.util.LogUtils;
 
 import java.util.logging.*;
 
-import javax.jms.Connection;
+import jakarta.jms.Connection;
 
-import javax.resource.ResourceException;
+import jakarta.resource.ResourceException;
 
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;

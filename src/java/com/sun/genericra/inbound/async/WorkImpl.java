@@ -14,7 +14,7 @@ import com.sun.genericra.util.*;
 
 import java.util.logging.*;
 
-import javax.resource.spi.work.*;
+import jakarta.resource.spi.work.*;
 
 
 /**

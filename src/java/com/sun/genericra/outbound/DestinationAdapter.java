@@ -20,12 +20,12 @@ import com.sun.genericra.util.StringUtils;
 
 import java.util.logging.*;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
+import jakarta.jms.Destination;
+import jakarta.jms.JMSException;
 
 import javax.print.attribute.SupportedValuesAttribute;
 
-import javax.resource.ResourceException;
+import jakarta.resource.ResourceException;
 
 
 /**
@@ -43,7 +43,7 @@ import javax.resource.ResourceException;
  * @author Sivakumar Thyagarajan
  */
 public abstract class DestinationAdapter extends GenericJMSRAProperties
-    implements javax.jms.Destination {
+    implements jakarta.jms.Destination {
     private static Logger logger;
 
     static {
@@ -52,13 +52,13 @@ public abstract class DestinationAdapter extends GenericJMSRAProperties
 
     private String destinationProperties = null;
     private String jndiName = null;
-    private javax.jms.Destination physicalDestination;
+    private jakarta.jms.Destination physicalDestination;
 
     public DestinationAdapter() {
         debug("Destination adapter is created");
     }
 
-    public javax.jms.Destination _getPhysicalDestination()
+    public jakarta.jms.Destination _getPhysicalDestination()
         throws JMSException {
         logger.log(Level.FINEST,
             "Returning physical destintion " + this.physicalDestination);
@@ -111,7 +111,7 @@ public abstract class DestinationAdapter extends GenericJMSRAProperties
             destBuilder.setCommonSetterMethodName(setMethod);
         }
 
-        this.physicalDestination = (javax.jms.Destination) destBuilder.build();
+        this.physicalDestination = (jakarta.jms.Destination) destBuilder.build();
     }
 
     protected abstract String getDestinationClassName();

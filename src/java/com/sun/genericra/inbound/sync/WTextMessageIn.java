@@ -10,8 +10,8 @@
 
 package com.sun.genericra.inbound.sync;
 
-import javax.jms.TextMessage;
-import javax.jms.JMSException;
+import jakarta.jms.TextMessage;
+import jakarta.jms.JMSException;
 
 /**
  * See WMessage
@@ -35,14 +35,14 @@ public class WTextMessageIn extends WMessageIn implements TextMessage {
     }
 
     /**
-     * @see javax.jms.TextMessage#getText()
+     * @see jakarta.jms.TextMessage#getText()
      */
     public String getText() throws JMSException {
         return mDelegate.getText();
     }
 
     /**
-     * @see javax.jms.TextMessage#setText(java.lang.String)
+     * @see jakarta.jms.TextMessage#setText(java.lang.String)
      */
     public void setText(String arg0) throws JMSException {
         mDelegate.setText(arg0);

@@ -11,7 +11,7 @@
 package com.sun.genericra.util;
 
 import java.util.ListIterator;
-import javax.resource.spi.InvalidPropertyException;
+import jakarta.resource.spi.InvalidPropertyException;
 import com.sun.genericra.GenericJMSRA;
 /**
  * This Custom Tokenizer class allows Custom command to break strings into tokens.

@@ -10,7 +10,7 @@
 
 package com.sun.genericra;
 
-import javax.jms.Connection;
+import jakarta.jms.Connection;
 
 
 /**

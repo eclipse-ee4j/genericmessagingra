@@ -24,16 +24,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.*;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionEvent;
-import javax.resource.spi.ConnectionEventListener;
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.LocalTransaction;
-import javax.resource.spi.ManagedConnectionMetaData;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.security.PasswordCredential;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ConnectionEvent;
+import jakarta.resource.spi.ConnectionEventListener;
+import jakarta.resource.spi.ConnectionRequestInfo;
+import jakarta.resource.spi.LocalTransaction;
+import jakarta.resource.spi.ManagedConnectionMetaData;
+import jakarta.resource.spi.ResourceAdapter;
+import jakarta.resource.spi.security.PasswordCredential;
 
 import javax.security.auth.Subject;
 
@@ -47,7 +47,7 @@ import javax.transaction.xa.XAResource;
  *
  * @author Sivakumar Thyagarajan
  */
-public class ManagedConnection implements javax.resource.spi.ManagedConnection {
+public class ManagedConnection implements jakarta.resource.spi.ManagedConnection {
     private static Logger logger;
 
     static {
@@ -57,7 +57,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
     private AbstractManagedConnectionFactory mcf;
     private com.sun.genericra.outbound.ConnectionRequestInfo info;
     private PrintWriter logWriter;
-    private javax.jms.Connection physicalJMSCon;
+    private jakarta.jms.Connection physicalJMSCon;
     private Session physicalJMSSession;
     private XASession physicalXASession;
     private ConnectionHandle activeHandle;
@@ -73,7 +73,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
     public ManagedConnection(AbstractManagedConnectionFactory factory,
         PasswordCredential pc,
         com.sun.genericra.outbound.ConnectionRequestInfo info,
-        javax.jms.Connection physicalCon) throws ResourceException {
+        jakarta.jms.Connection physicalCon) throws ResourceException {
         this.mcf = factory;
         this.passwordCredential = pc;
         this.info = info;
@@ -112,7 +112,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
         }
     }
 
-    private javax.jms.Session createXaSession(int sessionType)
+    private jakarta.jms.Session createXaSession(int sessionType)
         throws JMSException {
         Session result = null;
 
@@ -148,7 +148,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
         return result;
     }
 
-    public javax.jms.Session createLocalSession(boolean transacted,
+    public jakarta.jms.Session createLocalSession(boolean transacted,
         int acknowledgeMode, int sessionType) throws JMSException {
         Session result = null;
 
@@ -359,7 +359,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
         /*
          * Return a proxy of the JMS actual-connection which
          * intercepts all <code> Connection </code> calls and implements
-         * javax.jms.Connection, Topic and QueueConnection
+         * jakarta.jms.Connection, Topic and QueueConnection
          *
          * Intercepts, and delegates to actual connection, if connection handle
          * is not closed already.
@@ -376,7 +376,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
 
         if (SecurityUtils.isPasswordCredentialEqual(this.passwordCredential,
                     passedInCred) == false) {
-            throw new javax.resource.spi.SecurityException(
+            throw new jakarta.resource.spi.SecurityException(
                 "Re-authentication not supported");
         }
 
@@ -417,7 +417,7 @@ public class ManagedConnection implements javax.resource.spi.ManagedConnection {
         return this.transactionInProgress;
     }
 
-    public javax.jms.Connection getPhysicalConnection() {
+    public jakarta.jms.Connection getPhysicalConnection() {
         return this.physicalJMSCon;
     }
 

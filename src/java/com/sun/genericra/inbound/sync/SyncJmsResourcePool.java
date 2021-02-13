@@ -20,9 +20,9 @@ import java.util.logging.Logger;
 
 import java.util.logging.Level;
 import java.util.List;
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.ResourceException;
+import jakarta.resource.ResourceException;
 
 import javax.transaction.xa.XAResource;
 
@@ -51,7 +51,7 @@ public class SyncJmsResourcePool extends AbstractJmsResourcePool    {
                 "SERIAL") {
             mSessions = 1;
         } else if (this.consumer.getSpec().getDestinationType().equals(
-                javax.jms.Topic.class.getName())) {
+                jakarta.jms.Topic.class.getName())) {
             mSessions = 1;
         } else {
             mSessions =
@@ -127,19 +127,19 @@ public class SyncJmsResourcePool extends AbstractJmsResourcePool    {
                 if (clientID != null && !"".equals(clientID))
                     con.setClientID(clientID);
                 _logger.log(Level.FINE, "DMD connection factory " + consumer.getDmdConnectionFactory());
-                javax.jms.ConnectionFactory cf = (javax.jms.ConnectionFactory) consumer.getDmdConnectionFactory();
+                jakarta.jms.ConnectionFactory cf = (jakarta.jms.ConnectionFactory) consumer.getDmdConnectionFactory();
                 
                 if (consumer.getSpec().getSendBadMessagesToDMD() == true) {
                     this.dmdCon = createDmdConnection(cf);
                 }
             } else {
-                if (!(consumer.getConnectionFactory() instanceof javax.jms.ConnectionFactory)) {
+                if (!(consumer.getConnectionFactory() instanceof jakarta.jms.ConnectionFactory)) {
                     String msg = sm.getString("classtype_not_correct",
                             consumer.getConnectionFactory().getClass().getName());
                     throw new ResourceException(msg);
                 }
                 
-                cf = (javax.jms.ConnectionFactory) consumer.getConnectionFactory();
+                cf = (jakarta.jms.ConnectionFactory) consumer.getConnectionFactory();
                 this.con = createConnection(cf);
                 String clientID = consumer.getSpec().getClientID();
                  //Set the clientID only if it is not null

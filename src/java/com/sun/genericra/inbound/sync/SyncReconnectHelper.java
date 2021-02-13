@@ -15,10 +15,10 @@ import com.sun.genericra.util.*;
 
 import java.util.logging.*;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.*;
-import javax.resource.spi.*;
+import jakarta.resource.*;
+import jakarta.resource.spi.*;
 
 
 /**

@@ -18,10 +18,10 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jms.*;
-import javax.resource.spi.*;
-import javax.resource.spi.endpoint.*;
-import javax.resource.ResourceException;
+import jakarta.jms.*;
+import jakarta.resource.spi.*;
+import jakarta.resource.spi.endpoint.*;
+import jakarta.resource.ResourceException;
 import javax.transaction.xa.XAResource;
 
 
@@ -117,7 +117,7 @@ public class InboundJmsResourcePool extends AbstractJmsResourcePool implements S
             conconsumer = ((TopicConnection) con).createConnectionConsumer((Topic) dest,
                     selector, this, maxMessages);
         } else if (isQueue()) {
-            conconsumer = ((QueueConnection) con).createConnectionConsumer((javax.jms.Queue) dest,
+            conconsumer = ((QueueConnection) con).createConnectionConsumer((jakarta.jms.Queue) dest,
                     name, this, maxMessages);
         } else {
             conconsumer = con.createConnectionConsumer(dest, name, this,

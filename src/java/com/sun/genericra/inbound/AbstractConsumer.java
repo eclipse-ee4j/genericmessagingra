@@ -11,17 +11,17 @@
 package com.sun.genericra.inbound;
 
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.endpoint.MessageEndpoint;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ResourceAdapter;
+import jakarta.resource.spi.endpoint.MessageEndpoint;
+import jakarta.resource.spi.endpoint.MessageEndpointFactory;
 
 
 import com.sun.genericra.GenericJMSRA;
 import com.sun.genericra.util.LogUtils;
 import com.sun.genericra.util.*;
 
-import javax.jms.Destination;
+import jakarta.jms.Destination;
 import java.util.logging.Logger;
 
 import java.util.logging.Level;
@@ -49,7 +49,7 @@ public abstract class AbstractConsumer {
     protected boolean transacted = false;
     /** Creates a new instance of AbstractConsumer */
     public AbstractConsumer(MessageEndpointFactory mef,
-            javax.resource.spi.ActivationSpec actspec) throws ResourceException {
+            jakarta.resource.spi.ActivationSpec actspec) throws ResourceException {
         actspec.validate();
         this.spec = (ActivationSpec) actspec;
         this.ra = (GenericJMSRA) spec.getResourceAdapter();
@@ -208,14 +208,14 @@ public abstract class AbstractConsumer {
         }
         
         if (spec.getSubscriptionDurability().equals(Constants.DURABLE)) {
-            if (!(dest instanceof javax.jms.Topic)) {
+            if (!(dest instanceof jakarta.jms.Topic)) {
                 String msg = sm.getString("durable_shouldbe_topic");
                 throw new ResourceException(msg);
             }
         }
         
         if (this.spec.getSupportsXA()) {
-            if (!(cf instanceof javax.jms.XAConnectionFactory)) {
+            if (!(cf instanceof jakarta.jms.XAConnectionFactory)) {
                 String msg = sm.getString("cf_doesnot_supportsxa");
                 throw new ResourceException(msg);
             }
@@ -265,7 +265,7 @@ public abstract class AbstractConsumer {
     
     public abstract void stop();
     
-    public abstract javax.jms.Connection getConnection();
+    public abstract jakarta.jms.Connection getConnection();
     
     public abstract AbstractJmsResourcePool getPool();
 }

@@ -16,9 +16,9 @@ import com.sun.genericra.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jms.*;
-import javax.resource.spi.endpoint.*;
-import javax.resource.spi.work.*;
+import jakarta.jms.*;
+import jakarta.resource.spi.endpoint.*;
+import jakarta.resource.spi.work.*;
 
 import javax.transaction.xa.XAResource;
 

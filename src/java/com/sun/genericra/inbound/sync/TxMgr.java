@@ -12,9 +12,9 @@ package com.sun.genericra.inbound.sync;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
+import jakarta.transaction.Synchronization;
+import jakarta.transaction.Transaction;
+import jakarta.transaction.TransactionManager;
 import java.lang.reflect.Method;
 import java.util.Properties;
 /**
@@ -114,7 +114,7 @@ public class TxMgr {
         }
         if (mTxMgrAdapter == null) {
             // WebLogic
-            mTxMgrAdapter = new GlobalJNDI("javax.transaction.TransactionManager").init();
+            mTxMgrAdapter = new GlobalJNDI("jakarta.transaction.TransactionManager").init();
         }
         if (mTxMgrAdapter == null) {
             // WAS6 (note, do this before looking up java:/ as that causes a warning in the WAS log)
@@ -143,7 +143,7 @@ public class TxMgr {
         return mTxMgrAdapter;
     }
     /**
-     * Exposes the required functionality from a javax.transaction.TransactionManager
+     * Exposes the required functionality from a jakarta.transaction.TransactionManager
      * or in the case of IBM, something similar
      * 
      * @author fkieviet

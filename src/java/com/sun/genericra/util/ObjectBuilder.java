@@ -17,7 +17,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.resource.ResourceException;
+import jakarta.resource.ResourceException;
 
 
 /**

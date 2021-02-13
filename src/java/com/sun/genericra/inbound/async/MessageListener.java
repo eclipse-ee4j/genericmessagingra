@@ -16,7 +16,7 @@ import com.sun.genericra.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jms.Message;
+import jakarta.jms.Message;
 
 
 /**
@@ -25,7 +25,7 @@ import javax.jms.Message;
  *
  * @author Binod P.G
  */
-public class MessageListener implements javax.jms.MessageListener {
+public class MessageListener implements jakarta.jms.MessageListener {
     private static Logger _logger;
 
     static {

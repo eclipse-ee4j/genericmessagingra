@@ -18,9 +18,9 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.ResourceException;
+import jakarta.resource.ResourceException;
 
 import javax.transaction.xa.XAResource;
 /**
@@ -293,7 +293,7 @@ public abstract class AbstractJmsResourcePool {
 		}
             } else {
 		return ((XAQueueSession) sess).getQueueSession().createReceiver(
-                (javax.jms.Queue) dest, this.consumer.getSpec().getMessageSelector());
+                (jakarta.jms.Queue) dest, this.consumer.getSpec().getMessageSelector());
             }
 	} else {
             if (isTopic()) {
@@ -308,7 +308,7 @@ public abstract class AbstractJmsResourcePool {
 		this.consumer.getSpec().getMessageSelector(), false);
                 }
             } else {
-		 return ((QueueSession) sess).createReceiver((javax.jms.Queue) dest,
+		 return ((QueueSession) sess).createReceiver((jakarta.jms.Queue) dest,
 		this.consumer.getSpec().getMessageSelector());
             }
 	}
