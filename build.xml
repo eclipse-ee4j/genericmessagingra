@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE project [ <!ENTITY commonSetup SYSTEM "file:./config/properties.xml"> ]>
+<!DOCTYPE project [ <!ENTITY commonSetup SYSTEM "./config/properties.xml"> ]>
 <!--
 
     Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
