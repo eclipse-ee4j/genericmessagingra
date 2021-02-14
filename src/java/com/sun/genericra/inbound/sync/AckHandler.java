@@ -10,8 +10,8 @@
 
 package com.sun.genericra.inbound.sync;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
+import jakarta.jms.JMSException;
+import jakarta.jms.Message;
 
 /**
  * A callback that can be installed in a message that should be triggered when 

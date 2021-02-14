@@ -13,7 +13,7 @@ package com.sun.genericra.outbound;
 import com.sun.genericra.util.SecurityUtils;
 import com.sun.genericra.util.StringUtils;
 
-import javax.resource.spi.ManagedConnectionFactory;
+import jakarta.resource.spi.ManagedConnectionFactory;
 
 
 /**
@@ -22,7 +22,7 @@ import javax.resource.spi.ManagedConnectionFactory;
  * @author Sivakumar Thyagarajan
  */
 public class ConnectionRequestInfo
-    implements javax.resource.spi.ConnectionRequestInfo {
+    implements jakarta.resource.spi.ConnectionRequestInfo {
     private String userName;
     private String password;
     private String clientID;

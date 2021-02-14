@@ -12,13 +12,13 @@ package com.sun.genericra.outbound;
 
 import com.sun.genericra.util.Constants;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.spi.security.PasswordCredential;
+import jakarta.resource.spi.security.PasswordCredential;
 
 
 /**
- * MCF for javax.jms.TopicConnectionFactory
+ * MCF for jakarta.jms.TopicConnectionFactory
  * @author Sivakumar Thyagarajan
  */
 public class ManagedTopicConnectionFactory
@@ -36,7 +36,7 @@ public class ManagedTopicConnectionFactory
     }
 
     protected XAConnection createXAConnection(PasswordCredential pc,
-        javax.jms.ConnectionFactory cf) throws JMSException {
+        jakarta.jms.ConnectionFactory cf) throws JMSException {
         if (pc != null && (!pc.getUserName().equals(""))) {
             return ((XATopicConnectionFactory) cf).createXATopicConnection(pc.getUserName(),
                 new String(pc.getPassword()));
@@ -46,7 +46,7 @@ public class ManagedTopicConnectionFactory
     }
 
     protected Connection createConnection(PasswordCredential pc,
-        javax.jms.ConnectionFactory cf) throws JMSException {
+        jakarta.jms.ConnectionFactory cf) throws JMSException {
         if (pc != null && (!pc.getUserName().equals(""))) {
             return ((TopicConnectionFactory) cf).createTopicConnection(pc.getUserName(),
                 new String(pc.getPassword()));

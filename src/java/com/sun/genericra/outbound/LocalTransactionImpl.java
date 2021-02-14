@@ -12,8 +12,8 @@ package com.sun.genericra.outbound;
 
 import com.sun.genericra.util.ExceptionUtils;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.LocalTransactionException;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.LocalTransactionException;
 
 
 /**
@@ -21,7 +21,7 @@ import javax.resource.spi.LocalTransactionException;
  *
  * @author Sivakumar Thyagarajan
  */
-public class LocalTransactionImpl implements javax.resource.spi.LocalTransaction {
+public class LocalTransactionImpl implements jakarta.resource.spi.LocalTransaction {
     private ManagedConnection mc;
 
     /**

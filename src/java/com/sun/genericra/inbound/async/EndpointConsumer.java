@@ -16,13 +16,13 @@ import com.sun.genericra.util.*;
 
 import java.util.logging.*;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.endpoint.MessageEndpoint;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.resource.spi.work.WorkManager;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ResourceAdapter;
+import jakarta.resource.spi.endpoint.MessageEndpoint;
+import jakarta.resource.spi.endpoint.MessageEndpointFactory;
+import jakarta.resource.spi.work.WorkManager;
 
 import javax.transaction.xa.XAResource;
 
@@ -33,7 +33,7 @@ import com.sun.genericra.monitoring.*;
  * One <code>EndpointConsumer</code> represents one MDB deployment.
  * Important assumptions:
  *   - Each EndpointCOnsumer holds one InboundJmsResourcePool
- *     (ServerSessionPool) which holds a javax.jms.Connection object.
+ *     (ServerSessionPool) which holds a jakarta.jms.Connection object.
  *   - EndpointConsumer is also created when ra.getXAResources() is
  *     is called for transaction recovery.
  * @author Binod P.G
@@ -47,11 +47,11 @@ public class EndpointConsumer extends com.sun.genericra.inbound.AbstractConsumer
 
 
     public EndpointConsumer(MessageEndpointFactory mef,
-        javax.resource.spi.ActivationSpec actspec) throws ResourceException {
+        jakarta.resource.spi.ActivationSpec actspec) throws ResourceException {
         super(mef, actspec);       
     }
 
-    public EndpointConsumer(javax.resource.spi.ActivationSpec actspec)
+    public EndpointConsumer(jakarta.resource.spi.ActivationSpec actspec)
         throws ResourceException {
         this(null, actspec);
     }

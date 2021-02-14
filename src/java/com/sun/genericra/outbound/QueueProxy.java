@@ -10,16 +10,16 @@
 
 package com.sun.genericra.outbound;
 
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
 
 /**
  * Queue wrapper
  * @author Sivakumar Thyagarajan
  */
-public class QueueProxy extends DestinationAdapter implements javax.jms.Queue {
+public class QueueProxy extends DestinationAdapter implements jakarta.jms.Queue {
     public String getQueueName() throws JMSException {
-        return ((javax.jms.Queue) this._getPhysicalDestination()).getQueueName();
+        return ((jakarta.jms.Queue) this._getPhysicalDestination()).getQueueName();
     }
 
     protected String getDestinationClassName() {

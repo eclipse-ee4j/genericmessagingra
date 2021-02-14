@@ -16,7 +16,7 @@ import com.sun.genericra.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
 
 /**

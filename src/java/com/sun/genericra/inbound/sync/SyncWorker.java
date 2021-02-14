@@ -12,17 +12,17 @@ package com.sun.genericra.inbound.sync;
 import com.sun.genericra.util.*;
 
 import java.util.logging.*;
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
-import javax.jms.StreamMessage;
-import javax.jms.TextMessage;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
+import jakarta.jms.Message;
+import jakarta.jms.ObjectMessage;
+import jakarta.jms.StreamMessage;
+import jakarta.jms.TextMessage;
 
-import javax.resource.spi.work.*;
-import javax.transaction.Status;
-import javax.transaction.Transaction;
+import jakarta.resource.spi.work.*;
+import jakarta.transaction.Status;
+import jakarta.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
 public class SyncWorker implements Work {
@@ -33,8 +33,8 @@ public class SyncWorker implements Work {
     
     private volatile boolean mIsStopped = true;
     private Object mIsStoppedLock = new Object();
-    private javax.jms.MessageConsumer mReceiver;
-    private javax.jms.Session mSess;
+    private jakarta.jms.MessageConsumer mReceiver;
+    private jakarta.jms.Session mSess;
     private SyncJmsResource resource = null;
     private int sessionid;
     private static long TIMEOUT = 100;

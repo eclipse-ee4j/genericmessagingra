@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit;
 
 import java.util.logging.*;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.*;
-import javax.resource.spi.endpoint.*;
-import javax.transaction.Status;
-import javax.transaction.Transaction;
+import jakarta.resource.*;
+import jakarta.resource.spi.endpoint.*;
+import jakarta.transaction.Status;
+import jakarta.transaction.Transaction;
 import javax.transaction.xa.XAResource;
 
 
@@ -225,7 +225,7 @@ public class SyncDeliveryHelper {
         try {
             _logger.log(Level.FINEST,
                     "Now it is feeding the message to MDB instance");
-            ((javax.jms.MessageListener) endPoint).onMessage(message);
+            ((jakarta.jms.MessageListener) endPoint).onMessage(message);
         } catch (Exception e) {
             if (transacted) {
                 throw ExceptionUtils.newResourceException(e);

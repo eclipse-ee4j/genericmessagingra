@@ -10,13 +10,13 @@
 
 package com.sun.genericra.outbound;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
-import javax.resource.spi.security.PasswordCredential;
+import jakarta.resource.spi.security.PasswordCredential;
 
 
 /**
- * ManagedConnectionFactory implementation for javax.jms.ConnectionFactory.
+ * ManagedConnectionFactory implementation for jakarta.jms.ConnectionFactory.
  * @author Sivakumar Thyagarajan
  */
 public class ManagedJMSConnectionFactory
@@ -32,8 +32,8 @@ public class ManagedJMSConnectionFactory
         }
     }
 
-    protected javax.jms.XAConnection createXAConnection(PasswordCredential pc,
-        javax.jms.ConnectionFactory cf) throws JMSException {
+    protected jakarta.jms.XAConnection createXAConnection(PasswordCredential pc,
+        jakarta.jms.ConnectionFactory cf) throws JMSException {
         if (pc != null && (!pc.getUserName().equals(""))) {
             return ((XAConnectionFactory) cf).createXAConnection(pc.getUserName(),
                 new String(pc.getPassword()));
@@ -42,13 +42,13 @@ public class ManagedJMSConnectionFactory
         }
     }
 
-    protected javax.jms.Connection createConnection(PasswordCredential pc,
-        javax.jms.ConnectionFactory cf) throws JMSException {
+    protected jakarta.jms.Connection createConnection(PasswordCredential pc,
+        jakarta.jms.ConnectionFactory cf) throws JMSException {
         if (pc != null && (!pc.getUserName().equals(""))) {
-            return ((javax.jms.ConnectionFactory) cf).createConnection(pc.getUserName(),
+            return ((jakarta.jms.ConnectionFactory) cf).createConnection(pc.getUserName(),
                 new String(pc.getPassword()));
         } else {
-            return ((javax.jms.ConnectionFactory) cf).createConnection();
+            return ((jakarta.jms.ConnectionFactory) cf).createConnection();
         }
     }
 }

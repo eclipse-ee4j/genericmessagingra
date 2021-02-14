@@ -10,10 +10,10 @@
 
 package com.sun.genericra.util;
 
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
-import javax.resource.*;
-import javax.resource.spi.*;
+import jakarta.resource.*;
+import jakarta.resource.spi.*;
 
 import javax.transaction.xa.XAException;
 
@@ -24,11 +24,11 @@ import javax.transaction.xa.XAException;
  * @author Binod P.G
  */
 public class ExceptionUtils {
-    public static javax.resource.spi.SecurityException newSecurityException(
+    public static jakarta.resource.spi.SecurityException newSecurityException(
         Throwable t) {
-        javax.resource.spi.SecurityException se = new javax.resource.spi.SecurityException(t.getMessage());
+        jakarta.resource.spi.SecurityException se = new jakarta.resource.spi.SecurityException(t.getMessage());
 
-        return (javax.resource.spi.SecurityException) se.initCause(t);
+        return (jakarta.resource.spi.SecurityException) se.initCause(t);
     }
 
     public static InvalidPropertyException newInvalidPropertyException(

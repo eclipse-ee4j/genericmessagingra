@@ -17,10 +17,10 @@ import com.sun.genericra.inbound.async.*;
 
 import com.sun.genericra.util.*;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.endpoint.MessageEndpoint;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ResourceAdapter;
+import jakarta.resource.spi.endpoint.MessageEndpoint;
+import jakarta.resource.spi.endpoint.MessageEndpointFactory;
 /**
  *
  * @author rp138409
@@ -32,7 +32,7 @@ public class EndpointConsumerFactory {
     }
     
     public static AbstractConsumer createEndpointConsumer(MessageEndpointFactory mef,
-        javax.resource.spi.ActivationSpec actspec) throws ResourceException   {        
+        jakarta.resource.spi.ActivationSpec actspec) throws ResourceException   {        
         AbstractConsumer ret = null;
         String type = ((com.sun.genericra.inbound.ActivationSpec)actspec).getDeliveryType();
         if ((type == null) || (type.trim().equals(""))) {
@@ -48,7 +48,7 @@ public class EndpointConsumerFactory {
     }           
     
     public static AbstractConsumer createEndpointConsumer(
-            javax.resource.spi.ActivationSpec actspec) throws ResourceException   {
+            jakarta.resource.spi.ActivationSpec actspec) throws ResourceException   {
         return createEndpointConsumer(null,actspec);
     }
 }

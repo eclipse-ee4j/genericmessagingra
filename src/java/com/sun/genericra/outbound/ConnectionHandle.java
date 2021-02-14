@@ -16,22 +16,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jms.ConnectionConsumer;
-import javax.jms.ConnectionMetaData;
-import javax.jms.Destination;
-import javax.jms.ExceptionListener;
-import javax.jms.IllegalStateException;
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.ServerSessionPool;
-import javax.jms.Session;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicSession;
+import jakarta.jms.ConnectionConsumer;
+import jakarta.jms.ConnectionMetaData;
+import jakarta.jms.Destination;
+import jakarta.jms.ExceptionListener;
+import jakarta.jms.IllegalStateException;
+import jakarta.jms.JMSException;
+import jakarta.jms.Queue;
+import jakarta.jms.QueueConnection;
+import jakarta.jms.QueueSession;
+import jakarta.jms.ServerSessionPool;
+import jakarta.jms.Session;
+import jakarta.jms.TemporaryQueue;
+import jakarta.jms.TemporaryTopic;
+import jakarta.jms.Topic;
+import jakarta.jms.TopicConnection;
+import jakarta.jms.TopicSession;
 
 
 /**
@@ -41,10 +41,10 @@ import javax.jms.TopicSession;
  *
  * @author Sivakumar Thyagarajan
  */
-public class ConnectionHandle implements javax.jms.Connection, TopicConnection,
+public class ConnectionHandle implements jakarta.jms.Connection, TopicConnection,
     QueueConnection {
     private ManagedConnection mc;
-    private javax.jms.Connection physicalJMSCon;
+    private jakarta.jms.Connection physicalJMSCon;
     private boolean isClosed = false;
     private ArrayList sessions = new ArrayList();
     private ArrayList tempDestinations = new ArrayList();

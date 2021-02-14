@@ -22,13 +22,13 @@ import java.io.Serializable;
  *
  * @author Sivakumar Thyagarajan
  */
-public class ConnectionManager implements javax.resource.spi.ConnectionManager,
+public class ConnectionManager implements jakarta.resource.spi.ConnectionManager,
     Serializable {
     public Object allocateConnection(
-        javax.resource.spi.ManagedConnectionFactory mcf,
-        javax.resource.spi.ConnectionRequestInfo cxRequestInfo)
-        throws javax.resource.ResourceException {
-        javax.resource.spi.ManagedConnection mc = mcf.createManagedConnection(null,
+        jakarta.resource.spi.ManagedConnectionFactory mcf,
+        jakarta.resource.spi.ConnectionRequestInfo cxRequestInfo)
+        throws jakarta.resource.ResourceException {
+        jakarta.resource.spi.ManagedConnection mc = mcf.createManagedConnection(null,
                 cxRequestInfo);
 
         return mc.getConnection(null, cxRequestInfo);

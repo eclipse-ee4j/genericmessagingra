@@ -19,7 +19,7 @@ import java.util.logging.*;
 
 import javax.naming.*;
 
-import javax.resource.ResourceException;
+import jakarta.resource.ResourceException;
 
 
 /**

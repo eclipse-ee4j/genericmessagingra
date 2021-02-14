@@ -20,30 +20,30 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.*;
 
-import javax.jms.BytesMessage;
-import javax.jms.Destination;
-import javax.jms.IllegalStateException;
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.QueueBrowser;
-import javax.jms.QueueReceiver;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.StreamMessage;
-import javax.jms.TemporaryQueue;
-import javax.jms.TemporaryTopic;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import javax.jms.TopicPublisher;
-import javax.jms.TopicSession;
-import javax.jms.TopicSubscriber;
+import jakarta.jms.BytesMessage;
+import jakarta.jms.Destination;
+import jakarta.jms.IllegalStateException;
+import jakarta.jms.JMSException;
+import jakarta.jms.MapMessage;
+import jakarta.jms.Message;
+import jakarta.jms.MessageConsumer;
+import jakarta.jms.MessageListener;
+import jakarta.jms.MessageProducer;
+import jakarta.jms.ObjectMessage;
+import jakarta.jms.Queue;
+import jakarta.jms.QueueBrowser;
+import jakarta.jms.QueueReceiver;
+import jakarta.jms.QueueSender;
+import jakarta.jms.QueueSession;
+import jakarta.jms.Session;
+import jakarta.jms.StreamMessage;
+import jakarta.jms.TemporaryQueue;
+import jakarta.jms.TemporaryTopic;
+import jakarta.jms.TextMessage;
+import jakarta.jms.Topic;
+import jakarta.jms.TopicPublisher;
+import jakarta.jms.TopicSession;
+import jakarta.jms.TopicSubscriber;
 
 
 /**
@@ -444,28 +444,28 @@ public class SessionAdapter implements Session, TopicSession, QueueSession {
         return qr;
     }
 
-    private javax.jms.Topic getWrappedTopic(Topic topic)
+    private jakarta.jms.Topic getWrappedTopic(Topic topic)
         throws JMSException {
         if (topic instanceof TopicProxy) {
-            return (javax.jms.Topic) (((TopicProxy) topic)._getPhysicalDestination());
+            return (jakarta.jms.Topic) (((TopicProxy) topic)._getPhysicalDestination());
         } else {
             return topic;
         }
     }
 
-    private javax.jms.Queue getWrappedQueue(Queue queue)
+    private jakarta.jms.Queue getWrappedQueue(Queue queue)
         throws JMSException {
         if (queue instanceof QueueProxy) {
-            return (javax.jms.Queue) (((QueueProxy) queue)._getPhysicalDestination());
+            return (jakarta.jms.Queue) (((QueueProxy) queue)._getPhysicalDestination());
         } else {
             return queue;
         }
     }
 
-    private javax.jms.Destination getWrappedDestination(Destination dest)
+    private jakarta.jms.Destination getWrappedDestination(Destination dest)
         throws JMSException {
         if (dest instanceof DestinationAdapter) {
-            return (javax.jms.Destination) (((DestinationAdapter) dest)._getPhysicalDestination());
+            return (jakarta.jms.Destination) (((DestinationAdapter) dest)._getPhysicalDestination());
         } else {
             return dest;
         }
@@ -496,9 +496,9 @@ public class SessionAdapter implements Session, TopicSession, QueueSession {
         if (wrap) {
             InvocationHandler ih = new ProxyMessage(msg);
             Class[] intfcs = {
-                    javax.jms.Message.class, javax.jms.BytesMessage.class,
-                    javax.jms.MapMessage.class, javax.jms.ObjectMessage.class,
-                    javax.jms.StreamMessage.class, javax.jms.TextMessage.class
+                    jakarta.jms.Message.class, jakarta.jms.BytesMessage.class,
+                    jakarta.jms.MapMessage.class, jakarta.jms.ObjectMessage.class,
+                    jakarta.jms.StreamMessage.class, jakarta.jms.TextMessage.class
                 };
 
             return Proxy.newProxyInstance(this.getClass().getClassLoader(),

@@ -18,7 +18,7 @@ import java.lang.reflect.Proxy;
 
 import java.util.logging.*;
 
-import javax.jms.*;
+import jakarta.jms.*;
 
 
 /**

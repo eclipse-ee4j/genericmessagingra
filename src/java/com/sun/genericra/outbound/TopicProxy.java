@@ -10,19 +10,19 @@
 
 package com.sun.genericra.outbound;
 
-import javax.jms.JMSException;
+import jakarta.jms.JMSException;
 
 
 /**
  * Topic Wrapper
  * @author Sivakumar Thyagarajan
  */
-public class TopicProxy extends DestinationAdapter implements javax.jms.Topic {
+public class TopicProxy extends DestinationAdapter implements jakarta.jms.Topic {
     protected String getDestinationClassName() {
         return this.getTopicClassName();
     }
 
     public String getTopicName() throws JMSException {
-        return ((javax.jms.Topic) this._getPhysicalDestination()).getTopicName();
+        return ((jakarta.jms.Topic) this._getPhysicalDestination()).getTopicName();
     }
 }

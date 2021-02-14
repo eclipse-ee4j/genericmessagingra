@@ -16,16 +16,16 @@ import com.sun.genericra.util.*;
 
 import java.util.logging.*;
 
-import javax.resource.spi.*;
+import jakarta.resource.spi.*;
 
 
 /**
- * ActivationSpec for javax.jms.MessageListener.
+ * ActivationSpec for jakarta.jms.MessageListener.
  *
  * @author Binod P.G
  */
 public class ActivationSpec extends GenericJMSRAProperties
-    implements javax.resource.spi.ActivationSpec {
+    implements jakarta.resource.spi.ActivationSpec {
     private static Logger logger;
 
     static {

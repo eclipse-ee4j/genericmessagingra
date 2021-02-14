@@ -17,18 +17,18 @@ import java.io.Serializable;
 
 import java.util.logging.*;
 
-import javax.jms.Connection;
-import javax.jms.JMSContext;
-import javax.jms.JMSException;
-import javax.jms.QueueConnection;
-import javax.jms.TopicConnection;
+import jakarta.jms.Connection;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSException;
+import jakarta.jms.QueueConnection;
+import jakarta.jms.TopicConnection;
 
 import javax.naming.Reference;
 
-import javax.resource.Referenceable;
-import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionManager;
-import javax.resource.spi.ManagedConnectionFactory;
+import jakarta.resource.Referenceable;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ConnectionManager;
+import jakarta.resource.spi.ManagedConnectionFactory;
 
 
 /**
@@ -44,8 +44,8 @@ import javax.resource.spi.ManagedConnectionFactory;
  *
  * @author Sivakumar Thyagarajan
  */
-public class ConnectionFactory implements javax.jms.ConnectionFactory,
-    javax.jms.TopicConnectionFactory, javax.jms.QueueConnectionFactory,
+public class ConnectionFactory implements jakarta.jms.ConnectionFactory,
+    jakarta.jms.TopicConnectionFactory, jakarta.jms.QueueConnectionFactory,
     Serializable, Referenceable {
     private static Logger logger;
 

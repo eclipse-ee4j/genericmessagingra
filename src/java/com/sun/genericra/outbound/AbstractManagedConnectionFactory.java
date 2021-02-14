@@ -18,21 +18,21 @@ import java.io.PrintWriter;
 import java.util.Set;
 import java.util.logging.*;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.TopicConnectionFactory;
-import javax.jms.XAConnectionFactory;
-import javax.jms.XAQueueConnectionFactory;
-import javax.jms.XATopicConnectionFactory;
+import jakarta.jms.ConnectionFactory;
+import jakarta.jms.JMSException;
+import jakarta.jms.QueueConnectionFactory;
+import jakarta.jms.TopicConnectionFactory;
+import jakarta.jms.XAConnectionFactory;
+import jakarta.jms.XAQueueConnectionFactory;
+import jakarta.jms.XATopicConnectionFactory;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ConnectionManager;
-import javax.resource.spi.ConnectionRequestInfo;
-import javax.resource.spi.ManagedConnection;
-import javax.resource.spi.ResourceAdapter;
-import javax.resource.spi.ResourceAdapterAssociation;
-import javax.resource.spi.security.PasswordCredential;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ConnectionManager;
+import jakarta.resource.spi.ConnectionRequestInfo;
+import jakarta.resource.spi.ManagedConnection;
+import jakarta.resource.spi.ResourceAdapter;
+import jakarta.resource.spi.ResourceAdapterAssociation;
+import jakarta.resource.spi.security.PasswordCredential;
 
 import javax.security.auth.Subject;
 
@@ -46,7 +46,7 @@ import javax.security.auth.Subject;
  */
 public abstract class AbstractManagedConnectionFactory
     extends GenericJMSRAProperties
-    implements javax.resource.spi.ManagedConnectionFactory,
+    implements jakarta.resource.spi.ManagedConnectionFactory,
         ResourceAdapterAssociation {
     //by default, run as non-ACC. Use System Property or MCF property to enable
     private static boolean inAppClientContainer = false;
@@ -101,7 +101,7 @@ public abstract class AbstractManagedConnectionFactory
     }
 
     /*
-     * @see javax.resource.spi.ManagedConnectionFactory#createManagedConnection(javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo)
+     * @see jakarta.resource.spi.ManagedConnectionFactory#createManagedConnection(javax.security.auth.Subject, jakarta.resource.spi.ConnectionRequestInfo)
      */
     public ManagedConnection createManagedConnection(Subject subject,
         ConnectionRequestInfo cri) throws ResourceException {
@@ -113,7 +113,7 @@ public abstract class AbstractManagedConnectionFactory
 
             PasswordCredential pc = SecurityUtils.getPasswordCredential(this,
                     subject, cri);
-            javax.jms.Connection physicalCon = createPhysicalConnection(pc);
+            jakarta.jms.Connection physicalCon = createPhysicalConnection(pc);
 
             return new com.sun.genericra.outbound.ManagedConnection(this, pc,
                 (com.sun.genericra.outbound.ConnectionRequestInfo) cri,
@@ -125,9 +125,9 @@ public abstract class AbstractManagedConnectionFactory
         }
     }
 
-    private javax.jms.Connection createPhysicalConnection(PasswordCredential pc)
+    private jakarta.jms.Connection createPhysicalConnection(PasswordCredential pc)
         throws JMSException {
-        javax.jms.Connection physicalCon = null;
+        jakarta.jms.Connection physicalCon = null;
 
         if (this.getSupportsXA()) {
             physicalCon = createXAConnection(pc, this.connectionFactory);
@@ -138,10 +138,10 @@ public abstract class AbstractManagedConnectionFactory
         return physicalCon;
     }
 
-    protected abstract javax.jms.XAConnection createXAConnection(
+    protected abstract jakarta.jms.XAConnection createXAConnection(
         PasswordCredential pc, ConnectionFactory cf) throws JMSException;
 
-    protected abstract javax.jms.Connection createConnection(
+    protected abstract jakarta.jms.Connection createConnection(
         PasswordCredential pc, ConnectionFactory cf) throws JMSException;
 
     /**
@@ -178,7 +178,7 @@ public abstract class AbstractManagedConnectionFactory
     }
 
     /*
-     * @see javax.resource.spi.ManagedConnectionFactory#matchManagedConnections(java.util.Set, javax.security.auth.Subject, javax.resource.spi.ConnectionRequestInfo)
+     * @see jakarta.resource.spi.ManagedConnectionFactory#matchManagedConnections(java.util.Set, javax.security.auth.Subject, jakarta.resource.spi.ConnectionRequestInfo)
      */
     public ManagedConnection matchManagedConnections(Set connectionSet,
         Subject subject, ConnectionRequestInfo cxRequestInfo)
@@ -246,7 +246,7 @@ public abstract class AbstractManagedConnectionFactory
     }
 
     /**
-     * @return Whether to use a Proxy object to wrap javax.jms.Message objects.
+     * @return Whether to use a Proxy object to wrap jakarta.jms.Message objects.
      */
     public boolean getUseProxyMessages() {
         return useProxyMessages;
@@ -254,7 +254,7 @@ public abstract class AbstractManagedConnectionFactory
 
     /**
      * @param flag Indicating whether to use a Proxy object to wrap
-     *             javax.jms.Message objects.
+     *             jakarta.jms.Message objects.
      */
     public void setUseProxyMessages(boolean flag) {
         this.useProxyMessages = flag;

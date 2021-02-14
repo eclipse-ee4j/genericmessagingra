@@ -45,17 +45,17 @@ public final class Constants {
     /**
      * String indicating a queue
      */
-    public static final String QUEUE = "javax.jms.Queue";
+    public static final String QUEUE = "jakarta.jms.Queue";
 
     /**
      * String indicating a topic
      */
-    public static final String TOPIC = "javax.jms.Topic";
+    public static final String TOPIC = "jakarta.jms.Topic";
 
     /**
      * String indicating a destination
      */
-    public static final String DESTINATION = "javax.jms.Destination";
+    public static final String DESTINATION = "jakarta.jms.Destination";
 
     /**
      * String indicating a durable

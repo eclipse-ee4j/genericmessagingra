@@ -10,15 +10,15 @@
 
 package com.sun.genericra.inbound.sync;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.endpoint.MessageEndpointFactory;
 
 import java.util.logging.Level;
 import java.util.ArrayList;
 import com.sun.genericra.inbound.AbstractJmsResourcePool;
 import com.sun.genericra.util.ExceptionUtils;
-import javax.jms.*;
-import javax.transaction.TransactionManager;
+import jakarta.jms.*;
+import jakarta.transaction.TransactionManager;
 /**
  *
  * @author rp138409
@@ -34,7 +34,7 @@ public class SyncConsumer extends  com.sun.genericra.inbound.AbstractConsumer {
     private SyncReconnectHelper reconHelper = null;
     /** Creates a new instance of SyncConsumer */
     public SyncConsumer(MessageEndpointFactory mef,
-            javax.resource.spi.ActivationSpec actspec) throws ResourceException {
+            jakarta.resource.spi.ActivationSpec actspec) throws ResourceException {
         super(mef, actspec);
     }
     
@@ -97,7 +97,7 @@ public class SyncConsumer extends  com.sun.genericra.inbound.AbstractConsumer {
         }
     }
     
-    public javax.jms.Connection getConnection() {
+    public jakarta.jms.Connection getConnection() {
         return jmsPool.getConnection();
     }
 }

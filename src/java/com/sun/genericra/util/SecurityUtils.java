@@ -18,9 +18,9 @@ import java.security.PrivilegedAction;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.resource.ResourceException;
-import javax.resource.spi.ManagedConnectionFactory;
-import javax.resource.spi.security.PasswordCredential;
+import jakarta.resource.ResourceException;
+import jakarta.resource.spi.ManagedConnectionFactory;
+import jakarta.resource.spi.security.PasswordCredential;
 
 import javax.security.auth.Subject;
 
@@ -59,7 +59,7 @@ public class SecurityUtils {
      */
     public static PasswordCredential getPasswordCredential(
         final ManagedConnectionFactory mcf, final Subject subject,
-        javax.resource.spi.ConnectionRequestInfo info)
+        jakarta.resource.spi.ConnectionRequestInfo info)
         throws ResourceException {
         if (info == null) {
             if (subject == null) {
@@ -85,7 +85,7 @@ public class SecurityUtils {
                         });
 
                 if (pc == null) {
-                    throw new javax.resource.spi.SecurityException(
+                    throw new jakarta.resource.spi.SecurityException(
                         "No password credentials");
                 } else {
                     return pc;
