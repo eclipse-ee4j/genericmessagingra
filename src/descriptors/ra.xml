@@ -11,11 +11,11 @@
 
 -->
 
-<connector xmlns="http://java.sun.com/xml/ns/j2ee"
+<connector xmlns="https://jakarta.ee/xml/ns/jakartaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-    http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd"
-    version="1.5">
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+    https://jakarta.ee/xml/ns/jakartaee/connector_2_0.xsd"
+    version="2.0">
     
     <description>Generic JMS Resource Adapter</description>
     <display-name>Generic J2EE Resource Adapter for JMS</display-name>
