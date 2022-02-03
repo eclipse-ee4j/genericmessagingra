@@ -3,6 +3,7 @@
 <!--
 
     Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2022 Contributors to Eclipse Foundation. All rights reserved.
 
     This program and the accompanying materials are made available under the
     terms of the Eclipse Distribution License v. 1.0, which is available at
@@ -12,23 +13,50 @@
 
 -->
 
-<project name="genericra" default="usage" basedir=".">
+<project name="genericra" default="usage" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
     &commonSetup;
+
+    <property name="ivy.install.version" value="2.5.0"/>
+    <property name="ivy.jar.dir" value="${basedir}/ivy"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+
+    <target name="download-ivy">
+        <mkdir dir="${ivy.jar.dir}"/>
+        <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+             dest="${ivy.jar.file}"
+             usetimestamp="true"/>
+    </target>
+
+    <target name="install-ivy" depends="download-ivy">
+        <path id="ivy.lib.path">
+            <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml"
+                 uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    </target>
+
+    <target name="resolve" depends="install-ivy">
+        <ivy:retrieve/>
+    </target>
 
     <!-- ================================================================ 
      Target to compile the java source files 
      Variables used:
           ${build.classes.dir}
-          ${ra.classpath}
           ${src}
          ================================================================ -->
-    <target name="compile" depends="init-common">
+    <target name="compile" depends="init-common,resolve">
        <mkdir dir="${build.classes.dir}"/>
        <echo message="build.xml: Compiling test source files" level="verbose"/>
+       <ivy:cachepath organisation="jakarta.platform"
+                      module="jakarta.jakartaee-api"
+                      revision="9.1.0"
+                      pathid="jakartaee.api.path"
+                      inline="true"/>
        <javac srcdir="${src.dir}"
           destdir="${build.classes.dir}"
-          classpath="${ra.classpath}"
+          classpathref="jakartaee.api.path"
           debug="on"
           source="1.5"
           failonerror="true"/>
@@ -39,7 +67,6 @@
      Target to compile the java source files 
      Variables used:
           ${build.classes.dir}
-          ${ra.classpath}
           ${src}
           ${dist.dir}
          ================================================================ -->

@@ -18,7 +18,6 @@
     level="verbose"/>
    <property file="${env.RA_HOME}/config/config.properties"/>   
    <echo message="external.jars ${external.jars}" level="verbose"/>
-   <echo message="j2ee.jar ${j2ee.jar}" level="verbose"/>
 
    <property name="src.dir"
         value="${env.RA_HOME}/src"/>
@@ -30,9 +29,6 @@
         value="${build.base.dir}/lib"/>
    <property name="dist.dir"
         value="${build.base.dir}/dist"/>
-
-   <property name="ra.classpath"
-        value="${j2ee.jar}:${external.jar}"/>
 
 <!-- tests -->
    <mkdir dir="${build.classes.dir}"/>
