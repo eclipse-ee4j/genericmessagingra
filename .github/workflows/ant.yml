@@ -1,0 +1,23 @@
+name: Generic JMS RA
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      RA_HOME: .
+      S1AS_HOME: /tmp/s1as
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'temurin'
+      - name: Pre-create S1AS directories
+        run: mkdir --parents $S1AS_HOME/lib
+      - name: Build with Ant
+        run: ant -noinput -buildfile build.xml build
