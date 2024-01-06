@@ -1,0 +1,45 @@
+FROM eclipse-temurin:8u392-b08-jdk-jammy AS build-stage
+
+# Install Dependencies
+RUN apt-get -y update && apt-get install -y --fix-missing \
+    git \
+    wget \
+    && apt-get clean && rm -rf /tmp/* /var/tmp/*
+
+
+ENV ANT_VERSION=1.10.14
+
+WORKDIR /tmp
+
+# Install Ant
+RUN wget http://archive.apache.org/dist/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
+    && tar -zvxf apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt/ \
+    && rm apache-ant-${ANT_VERSION}-bin.tar.gz
+
+RUN ls /tmp
+
+# Add ant packages to system path
+ENV PATH="/opt/apache-ant-${ANT_VERSION}/bin:$PATH"
+
+# verify ant installation
+RUN echo "ant:"; ant -version;
+
+WORKDIR /opt/app
+
+# Set build Environment variables
+ENV S1AS_HOME /tmp/s1as
+ENV RA_HOME /opt/app/genericmessagingra
+
+# Create required directories for build 
+RUN mkdir --parents $S1AS_HOME/lib
+RUN git clone https://github.com/eclipse-ee4j/genericmessagingra.git && \
+	cd genericmessagingra
+
+# Build genericmessagingra adapter
+RUN cd $RA_HOME && ant -noinput -buildfile build.xml build
+
+# Export build files to host disk 
+FROM scratch AS export-stage
+COPY --from=build-stage /opt/app/genericmessagingra/build/dist/genericra.jar /
+COPY --from=build-stage /opt/app/genericmessagingra/build/dist/genericra.rar /
+
